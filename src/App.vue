@@ -1,116 +1,104 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
-const paises = ref([
-  { name: 'Brazil' },
-  { name: 'Argentina' },
-  { name: 'France' },
-  { name: 'Germany' },
-  { name: 'Portugal' },
-  { name: 'Spain' }
-])
+const token = '5dc0faddd67d4bd655e074569c6111e8'
 
+const paises = ref([])
 const paisSelecionado = ref('')
 const jogadores = ref([])
+const carregando = ref(false)
 
-const bancoJogadores = {
-  Brazil: [
-    {
-      id: 1,
-      name: 'Alisson Becker',
-      position: 'Goalkeeper',
-      photo: 'https://media.api-sports.io/football/players/1257.png',
-      status: {
-        ELA: 90,
-        MAN: 88,
-        CHU: 75,
-        REF: 92,
-        VEL: 70,
-        POS: 91
+const carregarPaises = async () => {
+  try {
+    const response = await fetch(
+      'https://v3.football.api-sports.io/teams/countries',
+      {
+        method: 'GET',
+        headers: {
+          'x-apisports-key': token
+        }
       }
-    },
-    {
-      id: 2,
-      name: 'Vinicius Junior',
-      position: 'Attacker',
-      photo: 'https://media.api-sports.io/football/players/18788.png',
-      status: {
-        RIT: 97,
-        FIN: 86,
-        PAS: 80,
-        CON: 94,
-        DEF: 35,
-        FIS: 78
-      }
-    },
-    {
-      id: 3,
-      name: 'Rodrygo',
-      position: 'Attacker',
-      photo: 'https://media.api-sports.io/football/players/18776.png',
-      status: {
-        RIT: 90,
-        FIN: 84,
-        PAS: 81,
-        CON: 89,
-        DEF: 42,
-        FIS: 74
-      }
-    }
-  ],
+    )
 
-  Argentina: [
-    {
-      id: 4,
-      name: 'Emiliano Martinez',
-      position: 'Goalkeeper',
-      photo: 'https://media.api-sports.io/football/players/3495.png',
-      status: {
-        ELA: 91,
-        MAN: 87,
-        CHU: 73,
-        REF: 93,
-        VEL: 65,
-        POS: 90
-      }
-    },
-    {
-      id: 5,
-      name: 'Lionel Messi',
-      position: 'Attacker',
-      photo: 'https://media.api-sports.io/football/players/154.png',
-      status: {
-        RIT: 85,
-        FIN: 95,
-        PAS: 97,
-        CON: 98,
-        DEF: 40,
-        FIS: 70
-      }
-    }
-  ],
+    const dados = await response.json()
 
-  France: [
-    {
-      id: 6,
-      name: 'Kylian Mbappé',
-      position: 'Attacker',
-      photo: 'https://media.api-sports.io/football/players/278.png',
-      status: {
-        RIT: 99,
-        FIN: 93,
-        PAS: 82,
-        CON: 95,
-        DEF: 38,
-        FIS: 82
-      }
-    }
-  ]
+    paises.value = dados.response
+  } catch (erro) {
+    console.error('Erro ao carregar países:', erro)
+  }
 }
 
-const carregarFigurinhas = () => {
-  jogadores.value = bancoJogadores[paisSelecionado.value] || []
+const gerarStatus = (posicao) => {
+  if (posicao === 'Goalkeeper') {
+    return {
+      ELA: Math.floor(Math.random() * 30) + 70,
+      MAN: Math.floor(Math.random() * 30) + 70,
+      CHU: Math.floor(Math.random() * 30) + 60,
+      REF: Math.floor(Math.random() * 30) + 75,
+      VEL: Math.floor(Math.random() * 30) + 60,
+      POS: Math.floor(Math.random() * 30) + 70
+    }
+  }
+
+  return {
+    RIT: Math.floor(Math.random() * 30) + 70,
+    FIN: Math.floor(Math.random() * 30) + 65,
+    PAS: Math.floor(Math.random() * 30) + 68,
+    CON: Math.floor(Math.random() * 30) + 70,
+    DEF: Math.floor(Math.random() * 30) + 60,
+    FIS: Math.floor(Math.random() * 30) + 65
+  }
 }
+
+const carregarFigurinhas = async () => {
+  if (!paisSelecionado.value) return
+
+  carregando.value = true
+  jogadores.value = []
+
+  try {
+    // Buscar time
+    const responseTime = await fetch(
+      `https://v3.football.api-sports.io/teams?name=${paisSelecionado.value}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-apisports-key': token
+        }
+      }
+    )
+
+    const dadosTime = await responseTime.json()
+
+    const teamId = dadosTime.response[0].team.id
+
+    // Buscar jogadores
+    const responseElenco = await fetch(
+      `https://v3.football.api-sports.io/players/squads?team=${teamId}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-apisports-key': token
+        }
+      }
+    )
+
+    const dadosElenco = await responseElenco.json()
+
+    jogadores.value = dadosElenco.response[0].players.map((jogador) => ({
+      ...jogador,
+      status: gerarStatus(jogador.position)
+    }))
+  } catch (erro) {
+    console.error('Erro ao carregar jogadores:', erro)
+  } finally {
+    carregando.value = false
+  }
+}
+
+onMounted(() => {
+  carregarPaises()
+})
 </script>
 
 <template>
@@ -137,10 +125,7 @@ const carregarFigurinhas = () => {
       </select>
     </header>
 
-    <section
-      v-if="paisSelecionado"
-      class="selecoes-info"
-    >
+    <section class="selecoes-info">
       <h2 class="selecionada">
         {{ paisSelecionado }}
       </h2>
@@ -149,6 +134,10 @@ const carregarFigurinhas = () => {
         Figurinhas coletadas: {{ jogadores.length }}
       </p>
     </section>
+
+    <p v-if="carregando" class="loading">
+      Carregando jogadores...
+    </p>
 
     <div class="grid">
 
@@ -295,6 +284,7 @@ select {
   border-radius: 12px;
   border: 2px solid #d1d5db;
   font-size: 18px;
+  background: white;
 }
 
 .selecoes-info {
@@ -316,6 +306,13 @@ select {
 .contador {
   font-size: 18px;
   font-weight: bold;
+  color: #2563eb;
+}
+
+.loading {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 22px;
   color: #2563eb;
 }
 
@@ -364,6 +361,7 @@ select {
   object-fit: cover;
   border-radius: 50%;
   border: 4px solid white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
 .info {
@@ -410,5 +408,23 @@ select {
   font-size: 12px;
   color: #6b7280;
   font-weight: bold;
+}
+
+@media (max-width: 768px) {
+
+  .topo h1 {
+    font-size: 36px;
+  }
+
+  .selecoes-info {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .selecionada {
+    font-size: 28px;
+  }
+
 }
 </style>
