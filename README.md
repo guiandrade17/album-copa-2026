@@ -3,7 +3,7 @@
 <img src="https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white"/>
 <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white"/>
 <img src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
-<img src="https://img.shields.io/badge/API--Football-v3-00A8E8?style=for-the-badge&logo=football&logoColor=white"/>
+<img src="https://img.shields.io/badge/API--Football-v3-00A8E8?style=for-the-badge&logoColor=white"/>
 <img src="https://img.shields.io/badge/Status-Concluído-brightgreen?style=for-the-badge"/>
 
 <br/><br/>
@@ -12,9 +12,23 @@
 
 > Álbum virtual interativo de seleções da Copa do Mundo 2026, desenvolvido em Vue 3 com consumo de API REST.
 
+</div>
+
+---
+
+## 📸 Preview do Projeto
+
+<div align="center">
+
+**🇧🇷 Seleção do Brasil**
+
+![Preview Brasil](src/assets/printBrasil.png)
+
 <br/>
 
-![Preview do Projeto](./src/assets/preview.png)
+**🇦🇷 Seleção da Argentina**
+
+![Preview Argentina](src/assets/printArgentina.png)
 
 </div>
 
@@ -25,16 +39,6 @@
 O **Álbum da Copa 2026** é uma aplicação web que simula um álbum de figurinhas digital, permitindo ao usuário selecionar qualquer seleção participante da Copa do Mundo e visualizar o elenco completo com fotos oficiais, nomes e posições dos jogadores — tudo consumido em tempo real pela [API-Football](https://www.api-football.com/).
 
 O projeto foi desenvolvido como atividade prática da disciplina de **Desenvolvimento Web**, com foco em integração assíncrona de APIs REST utilizando Vue 3.
-
----
-
-## 🖼️ Preview
-
-> Substitua a imagem abaixo pelo print do seu projeto em execução.
-
-```md
-![Preview](./src/assets/preview.png)
-```
 
 ---
 
@@ -71,10 +75,11 @@ album-copa-2026/
 ├── public/
 ├── src/
 │   ├── assets/
-│   │   └── preview.png
-│   ├── App.vue          ← componente principal (lógica + layout + estilo)
+│   │   ├── printBrasil.png
+│   │   └── printArgentina.png
+│   ├── App.vue
 │   └── main.js
-├── .env                 ← chave da API (não commitar)
+├── .env
 ├── .gitignore
 ├── index.html
 ├── package.json
@@ -102,9 +107,7 @@ cd album-copa-2026
 # 3. Instale as dependências
 npm install
 
-# 4. Configure sua chave da API
-cp .env.example .env
-# Edite o arquivo .env e adicione sua chave:
+# 4. Crie o arquivo .env na raiz e adicione sua chave:
 # VITE_API_KEY=SUA_CHAVE_AQUI
 
 # 5. Execute em modo de desenvolvimento
@@ -126,13 +129,11 @@ Acesse em: **http://localhost:5173**
 | `/teams?name={name}` | Busca o ID da seleção pelo nome |
 | `/players/squads?team={id}` | Retorna o elenco completo da seleção |
 
-> 📘 Documentação completa: [api-football.com/documentation-v3](https://www.api-football.com/documentation-v3)
+> 📘 Documentação: [api-football.com/documentation-v3](https://www.api-football.com/documentation-v3)
 
 ---
 
 ## 📱 Responsividade
-
-O layout foi construído com **CSS Grid** e breakpoints para três tamanhos de tela:
 
 | Dispositivo | Colunas dos cards |
 |---|---|
@@ -144,12 +145,11 @@ O layout foi construído com **CSS Grid** e breakpoints para três tamanhos de t
 
 ## 🎯 Objetivo Acadêmico
 
-Projeto desenvolvido para a disciplina de **Desenvolvimento Web**, com os seguintes objetivos de aprendizado:
+Projeto desenvolvido para a disciplina de **Desenvolvimento Web**, com foco em:
 
 - Consumo de APIs REST externas
 - Integração assíncrona com `async/await`
 - Reatividade e Composition API no Vue 3
-- Componentização e organização de código
 - Responsividade com CSS Grid
 - Boas práticas de desenvolvimento Front-End
 
