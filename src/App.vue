@@ -19,9 +19,7 @@ const carregarPaises = async () => {
       'https://v3.football.api-sports.io/teams/countries',
       {
         method: 'GET',
-        headers: {
-          'x-apisports-key': token
-        }
+        headers: { 'x-apisports-key': token }
       }
     )
     const dados = await response.json()
@@ -33,31 +31,19 @@ const carregarPaises = async () => {
 
 const carregarFigurinhas = async () => {
   if (!paisSelecionado.value) return
-
   carregando.value = true
   jogadores.value = []
-
   try {
     const responseTime = await fetch(
       `https://v3.football.api-sports.io/teams?name=${paisSelecionado.value}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-apisports-key': token
-        }
-      }
+      { method: 'GET', headers: { 'x-apisports-key': token } }
     )
     const dadosTime = await responseTime.json()
     const teamId = dadosTime.response[0].team.id
 
     const responseElenco = await fetch(
       `https://v3.football.api-sports.io/players/squads?team=${teamId}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-apisports-key': token
-        }
-      }
+      { method: 'GET', headers: { 'x-apisports-key': token } }
     )
     const dadosElenco = await responseElenco.json()
     jogadores.value = dadosElenco.response[0].players
@@ -68,10 +54,15 @@ const carregarFigurinhas = async () => {
   }
 }
 
-// Gera stats fictícias mas determinísticas por jogador
+// Stats fictícias mas determinísticas por jogador
 const fakeStatSeeded = (id, offset) => {
   const seed = (id * 9301 + offset * 49297) % 233280
   return 55 + Math.floor((seed / 233280) * 44)
+}
+
+// Número de camisa simulado
+const fakeShirt = (id) => {
+  return ((id * 7 + 3) % 23) + 1
 }
 
 onMounted(() => {
@@ -80,637 +71,702 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="navbar-brand">
-      <div class="brand-icon">⚽</div>
-      <span class="brand-name">FutÁlbum</span>
-    </div>
-    <div class="navbar-links">
-      <a href="#" class="nav-link active">Álbuns</a>
-      <a href="#" class="nav-link">Mercado</a>
-      <a href="#" class="nav-link">Perfil</a>
-    </div>
-  </nav>
+  <div class="page">
 
-  <!-- Corpo principal -->
-  <div class="album-wrapper">
-
-    <!-- Sidebar de seleção -->
-    <aside class="sidebar">
-      <p class="sidebar-label">SELECIONE UM TIME:</p>
-
-      <div class="select-box">
-        <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="select-flag" />
-        <span v-else class="select-globe">🌍</span>
-        <select v-model="paisSelecionado" @change="carregarFigurinhas" class="select-pais">
-          <option value="">Selecione...</option>
-          <option v-for="pais in paises" :key="pais.name" :value="pais.name">
-            {{ pais.name }}
-          </option>
-        </select>
-        <span class="select-chevron">▾</span>
+    <!-- ── NAVBAR ── -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <div class="nav-logo">
+          <span class="logo-icon">⚽</span>
+          <span class="logo-fa">FA</span>
+        </div>
+        <a href="#" class="nav-link">Início</a>
+        <a href="#" class="nav-link active">Álbuns</a>
+        <a href="#" class="nav-link">Mercado</a>
+        <a href="#" class="nav-link">Perfil</a>
       </div>
+      <div class="nav-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Busca..." class="search-input" />
+        </div>
+      </div>
+    </nav>
 
-      <!-- Info do time selecionado na sidebar -->
-      <div v-if="paisSelecionado && !carregando" class="team-card">
-        <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="team-flag" />
-        <div class="team-info">
-          <span class="team-label">SELEÇÃO</span>
-          <span class="team-name">{{ paisSelecionado }}</span>
-          <span class="team-count" v-if="jogadores.length">{{ jogadores.length }} jogadores</span>
+    <!-- ── CONTEÚDO ── -->
+    <div class="content">
+
+      <!-- Cabeçalho + select -->
+      <div class="top-bar">
+        <h1 class="page-title">ÁLBUM DE FIGURINHAS: SELEÇÕES DO MUNDO</h1>
+        <div class="select-area">
+          <span class="select-label">SELECIONE UM TIME:</span>
+          <div class="select-wrap">
+            <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="sel-flag" />
+            <span v-else class="sel-globe">🌍</span>
+            <select v-model="paisSelecionado" @change="carregarFigurinhas" class="sel">
+              <option value="">Selecione...</option>
+              <option v-for="pais in paises" :key="pais.name" :value="pais.name">
+                {{ pais.name }}
+              </option>
+            </select>
+            <span class="sel-arrow">▾</span>
+          </div>
         </div>
       </div>
 
-      <!-- Legenda de stats -->
-      <div class="stats-legend" v-if="jogadores.length">
-        <p class="legend-title">ATRIBUTOS</p>
-        <div class="legend-items">
-          <span class="leg outfield">RIT</span>
-          <span class="leg outfield">FIN</span>
-          <span class="leg outfield">PAS</span>
-          <span class="leg outfield">CON</span>
-          <span class="leg outfield">DEF</span>
-          <span class="leg outfield">FÍS</span>
-        </div>
-        <div class="legend-items" style="margin-top:6px">
-          <span class="leg gk">ELA</span>
-          <span class="leg gk">MAN</span>
-          <span class="leg gk">CHU</span>
-          <span class="leg gk">REF</span>
-          <span class="leg gk">VEL</span>
-          <span class="leg gk">POS</span>
-        </div>
-        <p class="legend-note">Amarelo = goleiro</p>
-      </div>
-    </aside>
+      <!-- Álbum box -->
+      <div class="album-box">
 
-    <!-- Área do álbum -->
-    <main class="album-main">
-
-      <!-- Cabeçalho do álbum -->
-      <div class="album-header">
-        <h1 class="album-title">ÁLBUM DE FIGURINHAS: SELEÇÕES DO MUNDO</h1>
-        <div v-if="paisSelecionado && !carregando" class="album-subtitle">
+        <!-- Subtítulo -->
+        <div class="album-sub" v-if="paisSelecionado">
           Álbum de Figurinhas – {{ paisSelecionado }}
         </div>
-      </div>
+        <div class="album-sub" v-else>Álbum de Figurinhas</div>
 
-      <!-- Banner da seleção no álbum -->
-      <div v-if="paisSelecionado && !carregando" class="album-team-banner">
-        <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="banner-flag" />
-        <div class="banner-badge">
-          <span class="banner-country">{{ paisSelecionado }}</span>
-          <span class="banner-label">SELEÇÃO NACIONAL</span>
-        </div>
-        <div v-if="jogadores.length" class="banner-collected">
-          Figurinhas Coletadas: {{ jogadores.length }} / {{ jogadores.length }}
-        </div>
-      </div>
-
-      <!-- Loading -->
-      <div v-if="carregando" class="loading-area">
-        <div class="spinner"></div>
-        <p>Carregando elenco...</p>
-      </div>
-
-      <!-- Estado vazio -->
-      <div v-if="!paisSelecionado && !carregando" class="empty-state">
-        <div class="empty-icon">📋</div>
-        <p>Escolha uma seleção para ver os jogadores</p>
-      </div>
-
-      <!-- Grade de figurinhas -->
-      <div class="sticker-grid">
-        <div
-          class="sticker"
-          v-for="(jogador, index) in jogadores"
-          :key="jogador.id"
-          :style="{ '--delay': index * 0.04 + 's' }"
-          :class="{ 'is-gk': jogador.position === 'Goalkeeper' }"
-        >
-          <!-- Topo colorido da figurinha -->
-          <div class="sticker-top">
-            <span class="sticker-num">{{ index + 1 }}</span>
-            <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="sticker-flag" />
+        <!-- Banner da seleção -->
+        <div class="team-banner" v-if="paisSelecionado && !carregando">
+          <div class="banner-left">
+            <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="banner-flag" />
+            <div class="banner-shield">
+              <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="shield-img" />
+            </div>
+            <div class="banner-text">
+              <span class="banner-country-name">SELEÇÃO {{ paisSelecionado.toUpperCase() }}</span>
+              <span class="banner-country-sub">{{ paisSelecionado }}</span>
+            </div>
           </div>
-
-          <!-- Foto -->
-          <div class="sticker-photo-wrap">
-            <img :src="jogador.photo" :alt="jogador.name" class="sticker-photo" />
-          </div>
-
-          <!-- Nome e posição -->
-          <div class="sticker-body">
-            <div class="sticker-name">{{ jogador.name }}</div>
-            <div class="sticker-pos">{{ jogador.position }}</div>
-          </div>
-
-          <!-- Stats de jogador de linha -->
-          <div class="sticker-stats" v-if="jogador.position !== 'Goalkeeper'">
-            <div class="stat"><span class="stat-label">RIT</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 0) }}</span></div>
-            <div class="stat"><span class="stat-label">FIN</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 1) }}</span></div>
-            <div class="stat"><span class="stat-label">PAS</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 2) }}</span></div>
-            <div class="stat"><span class="stat-label">CON</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 3) }}</span></div>
-            <div class="stat"><span class="stat-label">DEF</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 4) }}</span></div>
-            <div class="stat"><span class="stat-label">FÍS</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 5) }}</span></div>
-          </div>
-
-          <!-- Stats de goleiro -->
-          <div class="sticker-stats gk-stats" v-else>
-            <div class="stat"><span class="stat-label">ELA</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 0) }}</span></div>
-            <div class="stat"><span class="stat-label">MAN</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 1) }}</span></div>
-            <div class="stat"><span class="stat-label">CHU</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 2) }}</span></div>
-            <div class="stat"><span class="stat-label">REF</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 3) }}</span></div>
-            <div class="stat"><span class="stat-label">VEL</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 4) }}</span></div>
-            <div class="stat"><span class="stat-label">POS</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 5) }}</span></div>
+          <div class="banner-right" v-if="jogadores.length">
+            <div class="collected-box">
+              Figurinhas Coletadas: <strong>{{ jogadores.length }} / {{ jogadores.length }}</strong>
+            </div>
           </div>
         </div>
-      </div>
 
-    </main>
+        <!-- Loading -->
+        <div v-if="carregando" class="loading-area">
+          <div class="spinner"></div>
+          <p>Carregando elenco...</p>
+        </div>
+
+        <!-- Empty -->
+        <div v-if="!paisSelecionado && !carregando" class="empty-state">
+          <span class="empty-icon">📋</span>
+          <p>Escolha uma seleção acima para ver os jogadores</p>
+        </div>
+
+        <!-- ── GRADE DE FIGURINHAS ── -->
+        <div class="sticker-grid" v-if="jogadores.length && !carregando">
+          <div
+            class="sticker"
+            v-for="(jogador, index) in jogadores"
+            :key="jogador.id"
+            :style="{ '--i': index }"
+            :class="{ 'sticker-gk': jogador.position === 'Goalkeeper' }"
+          >
+            <!-- Faixa superior colorida com bandeira -->
+            <div class="st-header">
+              <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="st-flag" />
+            </div>
+
+            <!-- Foto do jogador -->
+            <div class="st-photo-area">
+              <img :src="jogador.photo" :alt="jogador.name" class="st-photo" />
+            </div>
+
+            <!-- Rodapé da figurinha -->
+            <div class="st-footer">
+              <div class="st-num">{{ fakeShirt(jogador.id) }}</div>
+              <div class="st-info">
+                <div class="st-name">{{ jogador.name }}</div>
+                <div class="st-pos">{{ jogador.position }}</div>
+              </div>
+              <div class="st-dot">
+                <div class="dot-circle"></div>
+              </div>
+            </div>
+
+            <!-- Stats na parte de baixo -->
+            <div class="st-stats" v-if="jogador.position !== 'Goalkeeper'">
+              <div class="st-stat" v-for="(s, i) in ['RIT','FIN','PAS','CON','DEF','FÍS']" :key="s">
+                <span class="st-stat-v">{{ fakeStatSeeded(jogador.id, i) }}</span>
+                <span class="st-stat-l">{{ s }}</span>
+              </div>
+            </div>
+            <div class="st-stats st-stats-gk" v-else>
+              <div class="st-stat" v-for="(s, i) in ['ELA','MAN','CHU','REF','VEL','POS']" :key="s">
+                <span class="st-stat-v">{{ fakeStatSeeded(jogador.id, i) }}</span>
+                <span class="st-stat-l">{{ s }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- fim grid -->
+
+      </div>
+      <!-- fim album-box -->
+
+    </div>
+    <!-- fim content -->
+
+    <!-- FOOTER -->
+    <footer class="footer" v-if="jogadores.length">
+      Termos de Uso | Política de Privacidade | Contato | © 2026 FutÁlbum
+    </footer>
+
   </div>
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,700&family=Barlow:wght@400;500;600;700&display=swap');
 
+/* ── RESET ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  min-height: 100vh;
-  background: #e8edf2;
+  height: 100%;
+  background: #dde3ec;
   font-family: 'Barlow', sans-serif;
   color: #1a2035;
 }
 
-/* ═══ NAVBAR ═══ */
-.navbar {
-  background: #0f1f3d;
+.page {
+  min-height: 100vh;
   display: flex;
-  align-items: center;
-  gap: 40px;
-  padding: 0 32px;
-  height: 56px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  flex-direction: column;
 }
 
-.navbar-brand {
+/* ── NAVBAR ── */
+.navbar {
+  background: #fff;
+  border-bottom: 2px solid #e0e5ef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 52px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #1a3a7a;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-right: 14px;
+}
+
+.logo-icon { font-size: 16px; }
+
+.logo-fa {
+  font-family: 'Anton', sans-serif;
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.nav-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: #4a5578;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: color .2s, background .2s;
+  text-transform: uppercase;
+}
+
+.nav-link:hover { color: #1a3a7a; background: #eef2fb; }
+
+.nav-link.active {
+  color: #1a3a7a;
+  border-bottom: 3px solid #1a3a7a;
+  border-radius: 0;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0f3fa;
+  border: 1.5px solid #d0d7e8;
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+
+.search-icon { font-size: 14px; opacity: 0.5; }
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  color: #1a2035;
+  width: 140px;
+}
+
+.search-input::placeholder { color: #9aa3b8; }
+
+/* ── CONTENT ── */
+.content {
+  flex: 1;
+  padding: 20px 24px 0;
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(16px, 2.2vw, 24px);
+  color: #0f1f3d;
+  letter-spacing: 1px;
+}
+
+.select-area {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.brand-icon { font-size: 22px; }
-
-.brand-name {
-  font-family: 'Anton', sans-serif;
-  font-size: 22px;
-  color: #f5c518;
-  letter-spacing: 1px;
-}
-
-.navbar-links { display: flex; gap: 4px; }
-
-.nav-link {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.65);
-  text-decoration: none;
-  padding: 6px 16px;
-  border-radius: 6px;
-  transition: color .2s, background .2s;
-}
-
-.nav-link:hover, .nav-link.active {
-  color: #fff;
-  background: rgba(245,197,24,0.15);
-}
-
-.nav-link.active { color: #f5c518; }
-
-/* ═══ LAYOUT ═══ */
-.album-wrapper {
-  display: flex;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 28px 20px 60px;
-  gap: 24px;
-  align-items: flex-start;
-}
-
-/* ═══ SIDEBAR ═══ */
-.sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.sidebar-label {
+.select-label {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 11px;
   letter-spacing: 2px;
   color: #6b7a99;
+  white-space: nowrap;
+  text-transform: uppercase;
 }
 
-.select-box {
+.select-wrap {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.select-flag, .select-globe {
+.sel-flag {
   position: absolute;
   left: 10px;
-  width: 26px;
-  height: 18px;
+  width: 24px;
+  height: 16px;
   object-fit: cover;
   border-radius: 3px;
-  font-size: 18px;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.sel-globe {
+  position: absolute;
+  left: 10px;
+  font-size: 16px;
   pointer-events: none;
   z-index: 2;
 }
 
-.select-pais {
-  width: 100%;
-  padding: 10px 34px 10px 44px;
-  border: 1.5px solid #c8d0df;
-  border-radius: 10px;
+.sel {
+  padding: 9px 36px 9px 42px;
+  border: 1.5px solid #c0cae0;
+  border-radius: 8px;
   background: #fff;
   color: #1a2035;
-  font-family: 'Barlow', sans-serif;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   cursor: pointer;
   appearance: none;
   outline: none;
+  min-width: 200px;
   transition: border-color .2s, box-shadow .2s;
 }
 
-.select-pais:focus {
+.sel:focus {
   border-color: #1a5fd4;
-  box-shadow: 0 0 0 3px rgba(26,95,212,0.15);
+  box-shadow: 0 0 0 3px rgba(26,95,212,0.12);
 }
 
-.select-chevron {
+.sel-arrow {
   position: absolute;
-  right: 10px;
+  right: 12px;
   color: #6b7a99;
   pointer-events: none;
-  font-size: 14px;
+  font-size: 13px;
 }
 
-/* Team card na sidebar */
-.team-card {
-  background: #fff;
-  border: 1.5px solid #c8d0df;
-  border-radius: 12px;
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* ── ALBUM BOX ── */
+.album-box {
+  background: #f5f7fc;
+  border: 1.5px solid #d0d7e8;
+  border-radius: 14px;
+  padding: 18px 20px 24px;
+  min-height: 60vh;
 }
 
-.team-flag {
-  width: 44px;
-  height: 30px;
-  object-fit: cover;
-  border-radius: 5px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
-  flex-shrink: 0;
-}
-
-.team-info { display: flex; flex-direction: column; gap: 2px; }
-
-.team-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #6b7a99;
-}
-
-.team-name {
-  font-family: 'Anton', sans-serif;
-  font-size: 17px;
-  color: #0f1f3d;
-  letter-spacing: 0.5px;
-}
-
-.team-count {
-  font-size: 11px;
-  color: #6b7a99;
-  font-weight: 500;
-}
-
-/* Legenda de stats */
-.stats-legend {
-  background: #fff;
-  border: 1.5px solid #c8d0df;
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.legend-title {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #6b7a99;
-  margin-bottom: 8px;
-}
-
-.legend-items { display: flex; flex-wrap: wrap; gap: 4px; }
-
-.leg {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  padding: 3px 7px;
-  border-radius: 4px;
-}
-
-.leg.outfield { background: #1a5fd4; color: #fff; }
-.leg.gk       { background: #f5c518; color: #0f1f3d; }
-
-.legend-note {
-  font-size: 10px;
-  color: #9aa3b8;
-  margin-top: 8px;
-}
-
-/* ═══ MAIN ═══ */
-.album-main { flex: 1; min-width: 0; }
-
-.album-header { margin-bottom: 20px; }
-
-.album-title {
-  font-family: 'Anton', sans-serif;
-  font-size: clamp(20px, 3vw, 28px);
-  color: #0f1f3d;
-  letter-spacing: 1px;
-}
-
-.album-subtitle {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: #6b7a99;
-  margin-top: 4px;
-  letter-spacing: 1px;
-}
-
-/* Banner da seleção */
-.album-team-banner {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  background: #fff;
-  border: 1.5px solid #c8d0df;
-  border-left: 5px solid #f5c518;
-  border-radius: 12px;
-  padding: 14px 20px;
-  margin-bottom: 22px;
-}
-
-.banner-flag {
-  width: 60px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-  border: 1px solid rgba(0,0,0,0.1);
-}
-
-.banner-badge { display: flex; flex-direction: column; }
-
-.banner-country {
-  font-family: 'Anton', sans-serif;
-  font-size: 22px;
-  color: #0f1f3d;
-  letter-spacing: 1px;
-}
-
-.banner-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2.5px;
-  color: #6b7a99;
-}
-
-.banner-collected {
-  margin-left: auto;
-  background: #0f1f3d;
-  color: #f5c518;
+.album-sub {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 1px;
-  padding: 6px 14px;
-  border-radius: 8px;
+  color: #6b7a99;
+  margin-bottom: 14px;
+  text-transform: uppercase;
 }
 
-/* Loading */
+/* ── BANNER DA SELEÇÃO ── */
+.team-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1.5px solid #d0d7e8;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.banner-flag {
+  width: 72px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.banner-shield {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #1a3a7a;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #d0d7e8;
+}
+
+.shield-img {
+  width: 36px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.banner-country-name {
+  font-family: 'Anton', sans-serif;
+  font-size: 20px;
+  color: #0f1f3d;
+  letter-spacing: 1px;
+}
+
+.banner-country-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #6b7a99;
+  text-transform: uppercase;
+}
+
+.collected-box {
+  background: #e8f0fe;
+  border: 1.5px solid #b8cef8;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a3a7a;
+  letter-spacing: 0.5px;
+}
+
+.collected-box strong { font-size: 16px; }
+
+/* ── LOADING ── */
 .loading-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 80px 0;
+  gap: 14px;
+  padding: 70px 0;
   color: #6b7a99;
   font-weight: 600;
-  letter-spacing: 1px;
   font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .spinner {
-  width: 44px;
-  height: 44px;
-  border: 3px solid #c8d0df;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #d0d7e8;
   border-top-color: #1a5fd4;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin .8s linear infinite;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Empty state */
+/* ── EMPTY ── */
 .empty-state {
-  text-align: center;
-  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 70px 0;
   color: #9aa3b8;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
 }
 
-.empty-icon { font-size: 50px; margin-bottom: 16px; opacity: 0.5; }
+.empty-icon { font-size: 48px; opacity: 0.45; }
 
-/* ═══ FIGURINHAS ═══ */
+/* ══════════════════════════════
+   FIGURINHAS — inspiradas na imagem
+══════════════════════════════ */
 .sticker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 10px;
 }
 
 .sticker {
   background: #fff;
-  border-radius: 12px;
-  border: 1.5px solid #c8d0df;
+  border-radius: 8px;
+  border: 1.5px solid #c8d2e4;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
   cursor: pointer;
-  animation: sticker-in 0.4s ease both;
-  animation-delay: var(--delay);
-  transition: transform .3s ease, box-shadow .3s ease;
+  animation: pop-in .35s ease both;
+  animation-delay: calc(var(--i) * 0.03s);
+  transition: transform .25s ease, box-shadow .25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .sticker:hover {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+  transform: translateY(-5px) scale(1.04);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
   border-color: #1a5fd4;
+  z-index: 10;
 }
 
-@keyframes sticker-in {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.88) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Topo colorido */
-.sticker-top {
-  background: linear-gradient(135deg, #1a3a7a 0%, #1a5fd4 100%);
+/* Faixa superior — azul escuro para jogadores, verde-dourado para GK */
+.st-header {
+  background: linear-gradient(90deg, #0f2a5e 60%, #1a5fd4 100%);
+  height: 22px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 6px 8px;
+  justify-content: flex-end;
+  padding: 0 6px;
 }
 
-.is-gk .sticker-top {
-  background: linear-gradient(135deg, #7a5500 0%, #c89600 100%);
+.sticker-gk .st-header {
+  background: linear-gradient(90deg, #1a4a1a 60%, #2d8c2d 100%);
 }
 
-.sticker-num {
-  font-family: 'Anton', sans-serif;
-  font-size: 14px;
-  color: rgba(255,255,255,0.75);
-  letter-spacing: 0.5px;
-}
-
-.sticker-flag {
-  width: 26px;
-  height: 17px;
+.st-flag {
+  width: 22px;
+  height: 14px;
   object-fit: cover;
-  border-radius: 3px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-/* Foto */
-.sticker-photo-wrap {
-  background: linear-gradient(180deg, #d6e4f7 0%, #eef3fb 100%);
+/* Foto — fundo degradê claro igual ao Panini */
+.st-photo-area {
+  background: linear-gradient(180deg, #c8d8f0 0%, #e8f0fa 55%, #f5f8fd 100%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  height: 110px;
+  height: 108px;
   overflow: hidden;
+  position: relative;
 }
 
-.is-gk .sticker-photo-wrap {
-  background: linear-gradient(180deg, #fdf0c2 0%, #fdf7e3 100%);
+.sticker-gk .st-photo-area {
+  background: linear-gradient(180deg, #c8e8c8 0%, #e8f5e8 55%, #f5fdf5 100%);
 }
 
-.sticker-photo {
-  width: 90px;
-  height: 90px;
+.st-photo {
+  width: 84px;
+  height: 96px;
   object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  margin-bottom: 8px;
+  object-position: top center;
+  display: block;
+  /* sem borda circular — igual Panini: foto retangular recortada */
 }
 
-/* Nome e posição */
-.sticker-body {
-  padding: 8px 8px 4px;
-  text-align: center;
-  border-bottom: 1px solid #eef0f5;
+/* Rodapé branco com número, nome e posição */
+.st-footer {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 6px 4px;
+  border-top: 1px solid #e8ecf4;
 }
 
-.sticker-name {
+.st-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 18px;
+  color: #0f1f3d;
+  min-width: 20px;
+  line-height: 1;
+}
+
+.st-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.st-name {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 10px;
   color: #0f1f3d;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.sticker-pos {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: #6b7a99;
   text-transform: uppercase;
-  margin-top: 2px;
-}
-
-/* Stats */
-.sticker-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  padding: 6px 6px 8px;
-  gap: 4px;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.stat-label {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 8px;
-  letter-spacing: 1px;
-  color: #fff;
-  background: #1a5fd4;
-  border-radius: 3px;
-  padding: 1px 4px;
-  line-height: 1.4;
-}
-
-.gk-stats .stat-label {
-  background: #c89600;
-  color: #0f1f3d;
-}
-
-.stat-val {
-  font-family: 'Anton', sans-serif;
-  font-size: 14px;
-  color: #0f1f3d;
   line-height: 1.2;
 }
 
-/* ═══ RESPONSIVO ═══ */
-@media (max-width: 900px) {
-  .album-wrapper { flex-direction: column; }
-  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
-  .stats-legend { display: none; }
-  .sticker-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+.st-pos {
+  font-family: 'Barlow', sans-serif;
+  font-size: 8px;
+  color: #6b7a99;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
-@media (max-width: 500px) {
-  .sticker-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .album-wrapper { padding: 16px 12px 40px; }
+/* Bolinha do clube (imitando ícone do clube no Panini) */
+.st-dot { flex-shrink: 0; }
+
+.dot-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a3a7a, #3a7ad4);
+  border: 1.5px solid #d0d7e8;
+}
+
+.sticker-gk .dot-circle {
+  background: linear-gradient(135deg, #1a4a1a, #3a9a3a);
+}
+
+/* Stats — faixa inferior compacta */
+.st-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  background: #0f2a5e;
+  padding: 4px 4px 5px;
+  gap: 2px;
+}
+
+.st-stats-gk {
+  background: #1a4a1a;
+}
+
+.st-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.st-stat-v {
+  font-family: 'Anton', sans-serif;
+  font-size: 11px;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.st-stat-l {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 6.5px;
+  letter-spacing: 0.3px;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 11px;
+  color: #9aa3b8;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border-top: 1px solid #d0d7e8;
+  margin-top: 24px;
+}
+
+/* ── RESPONSIVO ── */
+@media (max-width: 768px) {
+  .content { padding: 14px 12px 0; }
+  .top-bar { flex-direction: column; align-items: flex-start; }
+  .sticker-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .st-photo-area { height: 90px; }
+  .st-photo { width: 70px; height: 82px; }
+  .st-stats { padding: 3px 2px 4px; }
+  .st-stat-v { font-size: 10px; }
+  .st-stat-l { font-size: 6px; }
+}
+
+@media (max-width: 480px) {
+  .sticker-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .navbar { padding: 0 14px; }
+  .nav-link { font-size: 12px; padding: 5px 8px; }
 }
 </style>
