@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const token = '5dc0faddd67d4bd655e074569c6111e8'
 
@@ -7,11 +7,6 @@ const paises = ref([])
 const paisSelecionado = ref('')
 const jogadores = ref([])
 const carregando = ref(false)
-
-const bandeiraSelecionada = computed(() => {
-  const pais = paises.value.find(p => p.name === paisSelecionado.value)
-  return pais?.flag ?? null
-})
 
 const carregarPaises = async () => {
   try {
@@ -68,649 +63,562 @@ const carregarFigurinhas = async () => {
   }
 }
 
-// Gera stats fictícias mas determinísticas por jogador
-const fakeStatSeeded = (id, offset) => {
-  const seed = (id * 9301 + offset * 49297) % 233280
-  return 55 + Math.floor((seed / 233280) * 44)
-}
-
 onMounted(() => {
   carregarPaises()
 })
 </script>
 
 <template>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="navbar-brand">
-      <div class="brand-icon">⚽</div>
-      <span class="brand-name">FutÁlbum</span>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="container">
+
+    <header class="header">
+      <div class="header-badge">FIFA WORLD CUP</div>
+      <h1 class="titulo">
+        <span class="titulo-icon">⚽</span>
+        Álbum da Copa
+        <span class="titulo-ano">2026</span>
+      </h1>
+      <p class="subtitulo">Selecione uma seleção e monte seu álbum</p>
+    </header>
+
+    <div class="select-wrapper">
+      <div class="select-icon">🌍</div>
+      <select
+        v-model="paisSelecionado"
+        @change="carregarFigurinhas"
+        class="select-pais"
+      >
+        <option value="">Selecione uma seleção...</option>
+        <option
+          v-for="pais in paises"
+          :key="pais.name"
+          :value="pais.name"
+        >
+          {{ pais.name }}
+        </option>
+      </select>
+      <div class="select-arrow">▾</div>
     </div>
-    <div class="navbar-links">
-      <a href="#" class="nav-link active">Álbuns</a>
-      <a href="#" class="nav-link">Mercado</a>
-      <a href="#" class="nav-link">Perfil</a>
-    </div>
-  </nav>
 
-  <!-- Corpo principal -->
-  <div class="album-wrapper">
-
-    <!-- Sidebar de seleção -->
-    <aside class="sidebar">
-      <p class="sidebar-label">SELECIONE UM TIME:</p>
-
-      <div class="select-box">
-        <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="select-flag" />
-        <span v-else class="select-globe">🌍</span>
-        <select v-model="paisSelecionado" @change="carregarFigurinhas" class="select-pais">
-          <option value="">Selecione...</option>
-          <option v-for="pais in paises" :key="pais.name" :value="pais.name">
-            {{ pais.name }}
-          </option>
-        </select>
-        <span class="select-chevron">▾</span>
+    <transition name="fade">
+      <div v-if="paisSelecionado && !carregando" class="selecionada-banner">
+        <span class="selecionada-label">SELEÇÃO</span>
+        <span class="selecionada-nome">{{ paisSelecionado }}</span>
+        <span class="selecionada-count" v-if="jogadores.length">
+          {{ jogadores.length }} jogadores
+        </span>
       </div>
+    </transition>
 
-      <!-- Info do time selecionado na sidebar -->
-      <div v-if="paisSelecionado && !carregando" class="team-card">
-        <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="team-flag" />
-        <div class="team-info">
-          <span class="team-label">SELEÇÃO</span>
-          <span class="team-name">{{ paisSelecionado }}</span>
-          <span class="team-count" v-if="jogadores.length">{{ jogadores.length }} jogadores</span>
-        </div>
-      </div>
-
-      <!-- Legenda de stats -->
-      <div class="stats-legend" v-if="jogadores.length">
-        <p class="legend-title">ATRIBUTOS</p>
-        <div class="legend-items">
-          <span class="leg outfield">RIT</span>
-          <span class="leg outfield">FIN</span>
-          <span class="leg outfield">PAS</span>
-          <span class="leg outfield">CON</span>
-          <span class="leg outfield">DEF</span>
-          <span class="leg outfield">FÍS</span>
-        </div>
-        <div class="legend-items" style="margin-top:6px">
-          <span class="leg gk">ELA</span>
-          <span class="leg gk">MAN</span>
-          <span class="leg gk">CHU</span>
-          <span class="leg gk">REF</span>
-          <span class="leg gk">VEL</span>
-          <span class="leg gk">POS</span>
-        </div>
-        <p class="legend-note">Amarelo = goleiro</p>
-      </div>
-    </aside>
-
-    <!-- Área do álbum -->
-    <main class="album-main">
-
-      <!-- Cabeçalho do álbum -->
-      <div class="album-header">
-        <h1 class="album-title">ÁLBUM DE FIGURINHAS: SELEÇÕES DO MUNDO</h1>
-        <div v-if="paisSelecionado && !carregando" class="album-subtitle">
-          Álbum de Figurinhas – {{ paisSelecionado }}
-        </div>
-      </div>
-
-      <!-- Banner da seleção no álbum -->
-      <div v-if="paisSelecionado && !carregando" class="album-team-banner">
-        <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="banner-flag" />
-        <div class="banner-badge">
-          <span class="banner-country">{{ paisSelecionado }}</span>
-          <span class="banner-label">SELEÇÃO NACIONAL</span>
-        </div>
-        <div v-if="jogadores.length" class="banner-collected">
-          Figurinhas Coletadas: {{ jogadores.length }} / {{ jogadores.length }}
-        </div>
-      </div>
-
-      <!-- Loading -->
+    <transition name="fade">
       <div v-if="carregando" class="loading-area">
-        <div class="spinner"></div>
-        <p>Carregando elenco...</p>
+        <div class="spinner">
+          <div class="spinner-inner"></div>
+          <div class="spinner-bola">⚽</div>
+        </div>
+        <p class="loading-texto">Carregando elenco...</p>
       </div>
+    </transition>
 
-      <!-- Estado vazio -->
+    <div class="grid">
+      <div
+        class="card"
+        v-for="(jogador, index) in jogadores"
+        :key="jogador.id"
+        :style="{ '--delay': index * 0.05 + 's' }"
+      >
+        <div class="card-num">#{{ index + 1 }}</div>
+
+        <div class="foto-wrapper">
+          <div class="foto-ring"></div>
+          <div class="foto-bg"></div>
+          <div class="foto">
+            <img :src="jogador.photo" :alt="jogador.name" />
+          </div>
+        </div>
+
+        <div class="card-nome">{{ jogador.name }}</div>
+        <div class="card-posicao">{{ jogador.position }}</div>
+
+        <div class="divider"></div>
+      </div>
+    </div>
+
+    <transition name="fade">
       <div v-if="!paisSelecionado && !carregando" class="empty-state">
         <div class="empty-icon">📋</div>
-        <p>Escolha uma seleção para ver os jogadores</p>
+        <p>Escolha uma seleção acima para ver os jogadores</p>
       </div>
+    </transition>
 
-      <!-- Grade de figurinhas -->
-      <div class="sticker-grid">
-        <div
-          class="sticker"
-          v-for="(jogador, index) in jogadores"
-          :key="jogador.id"
-          :style="{ '--delay': index * 0.04 + 's' }"
-          :class="{ 'is-gk': jogador.position === 'Goalkeeper' }"
-        >
-          <!-- Topo colorido da figurinha -->
-          <div class="sticker-top">
-            <span class="sticker-num">{{ index + 1 }}</span>
-            <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="sticker-flag" />
-          </div>
-
-          <!-- Foto -->
-          <div class="sticker-photo-wrap">
-            <img :src="jogador.photo" :alt="jogador.name" class="sticker-photo" />
-          </div>
-
-          <!-- Nome e posição -->
-          <div class="sticker-body">
-            <div class="sticker-name">{{ jogador.name }}</div>
-            <div class="sticker-pos">{{ jogador.position }}</div>
-          </div>
-
-          <!-- Stats de jogador de linha -->
-          <div class="sticker-stats" v-if="jogador.position !== 'Goalkeeper'">
-            <div class="stat"><span class="stat-label">RIT</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 0) }}</span></div>
-            <div class="stat"><span class="stat-label">FIN</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 1) }}</span></div>
-            <div class="stat"><span class="stat-label">PAS</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 2) }}</span></div>
-            <div class="stat"><span class="stat-label">CON</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 3) }}</span></div>
-            <div class="stat"><span class="stat-label">DEF</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 4) }}</span></div>
-            <div class="stat"><span class="stat-label">FÍS</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 5) }}</span></div>
-          </div>
-
-          <!-- Stats de goleiro -->
-          <div class="sticker-stats gk-stats" v-else>
-            <div class="stat"><span class="stat-label">ELA</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 0) }}</span></div>
-            <div class="stat"><span class="stat-label">MAN</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 1) }}</span></div>
-            <div class="stat"><span class="stat-label">CHU</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 2) }}</span></div>
-            <div class="stat"><span class="stat-label">REF</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 3) }}</span></div>
-            <div class="stat"><span class="stat-label">VEL</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 4) }}</span></div>
-            <div class="stat"><span class="stat-label">POS</span><span class="stat-val">{{ fakeStatSeeded(jogador.id, 5) }}</span></div>
-          </div>
-        </div>
-      </div>
-
-    </main>
   </div>
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&display=swap');
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+/* ─── Reset ─── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 html, body {
   min-height: 100vh;
-  background: #e8edf2;
-  font-family: 'Barlow', sans-serif;
-  color: #1a2035;
+  background: #07111f;
+  font-family: 'Rajdhani', sans-serif;
+  overflow-x: hidden;
 }
 
-/* ═══ NAVBAR ═══ */
-.navbar {
-  background: #0f1f3d;
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  padding: 0 32px;
-  height: 56px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* ─── Orbs de fundo ─── */
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 20% 10%, #0d2b5e 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, #051630 0%, #07111f 100%);
 }
 
-.navbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.22;
+  animation: orb-float 12s ease-in-out infinite;
 }
 
-.brand-icon { font-size: 22px; }
-
-.brand-name {
-  font-family: 'Anton', sans-serif;
-  font-size: 22px;
-  color: #f5c518;
-  letter-spacing: 1px;
+.orb-1 {
+  width: 600px; height: 600px;
+  top: -200px; left: -150px;
+  background: radial-gradient(circle, #1a4a8f, transparent);
+  animation-delay: 0s;
 }
 
-.navbar-links { display: flex; gap: 4px; }
-
-.nav-link {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.65);
-  text-decoration: none;
-  padding: 6px 16px;
-  border-radius: 6px;
-  transition: color .2s, background .2s;
+.orb-2 {
+  width: 500px; height: 500px;
+  top: 40%; right: -150px;
+  background: radial-gradient(circle, #c8960a, transparent);
+  animation-delay: -4s;
 }
 
-.nav-link:hover, .nav-link.active {
-  color: #fff;
-  background: rgba(245,197,24,0.15);
+.orb-3 {
+  width: 400px; height: 400px;
+  bottom: -100px; left: 35%;
+  background: radial-gradient(circle, #0f3d7a, transparent);
+  animation-delay: -8s;
 }
 
-.nav-link.active { color: #f5c518; }
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0px)   scale(1);    }
+  50%       { transform: translateY(-40px) scale(1.08); }
+}
 
-/* ═══ LAYOUT ═══ */
-.album-wrapper {
-  display: flex;
-  max-width: 1400px;
+/* ─── Container ─── */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 28px 20px 60px;
-  gap: 24px;
-  align-items: flex-start;
+  padding: 40px 28px 80px;
 }
 
-/* ═══ SIDEBAR ═══ */
-.sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* ─── Cabeçalho ─── */
+.header {
+  text-align: center;
+  margin-bottom: 50px;
 }
 
-.sidebar-label {
-  font-family: 'Barlow Condensed', sans-serif;
+.header-badge {
+  display: inline-block;
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   font-size: 11px;
-  letter-spacing: 2px;
-  color: #6b7a99;
+  letter-spacing: 4px;
+  color: #f0c040;
+  border: 1px solid #b8860b;
+  padding: 5px 18px;
+  border-radius: 30px;
+  margin-bottom: 18px;
+  background: rgba(240, 192, 64, 0.08);
+  text-transform: uppercase;
 }
 
-.select-box {
+.titulo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 9vw, 100px);
+  color: #ffffff;
+  line-height: 0.95;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.titulo-icon {
+  display: inline-block;
+  animation: spin-slow 8s linear infinite;
+  margin-right: 12px;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.titulo-ano {
+  color: #f0c040;
+}
+
+.subtitulo {
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* ─── Select ─── */
+.select-wrapper {
   position: relative;
+  max-width: 560px;
+  margin: 0 auto 36px;
   display: flex;
   align-items: center;
 }
 
-.select-flag, .select-globe {
+.select-icon {
   position: absolute;
-  left: 10px;
-  width: 26px;
-  height: 18px;
-  object-fit: cover;
-  border-radius: 3px;
-  font-size: 18px;
+  left: 18px;
+  font-size: 22px;
   pointer-events: none;
   z-index: 2;
 }
 
 .select-pais {
   width: 100%;
-  padding: 10px 34px 10px 44px;
-  border: 1.5px solid #c8d0df;
-  border-radius: 10px;
-  background: #fff;
-  color: #1a2035;
-  font-family: 'Barlow', sans-serif;
-  font-size: 14px;
+  padding: 18px 50px 18px 54px;
+  border-radius: 14px;
+  border: 1px solid rgba(240, 192, 64, 0.35);
+  background: rgba(10, 25, 55, 0.85);
+  backdrop-filter: blur(16px);
+  color: #ffffff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 17px;
   font-weight: 600;
   cursor: pointer;
   appearance: none;
+  -webkit-appearance: none;
   outline: none;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .select-pais:focus {
-  border-color: #1a5fd4;
-  box-shadow: 0 0 0 3px rgba(26,95,212,0.15);
+  border-color: #f0c040;
+  box-shadow: 0 0 0 3px rgba(240, 192, 64, 0.2), 0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
-.select-chevron {
+.select-pais option {
+  background: #0d1f40;
+  color: #ffffff;
+}
+
+.select-arrow {
   position: absolute;
-  right: 10px;
-  color: #6b7a99;
+  right: 18px;
+  color: #f0c040;
+  font-size: 20px;
   pointer-events: none;
-  font-size: 14px;
 }
 
-/* Team card na sidebar */
-.team-card {
-  background: #fff;
-  border: 1.5px solid #c8d0df;
-  border-radius: 12px;
-  padding: 14px;
+/* ─── Banner da seleção ─── */
+.selecionada-banner {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.team-flag {
-  width: 44px;
-  height: 30px;
-  object-fit: cover;
-  border-radius: 5px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
-  flex-shrink: 0;
-}
-
-.team-info { display: flex; flex-direction: column; gap: 2px; }
-
-.team-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #6b7a99;
-}
-
-.team-name {
-  font-family: 'Anton', sans-serif;
-  font-size: 17px;
-  color: #0f1f3d;
-  letter-spacing: 0.5px;
-}
-
-.team-count {
-  font-size: 11px;
-  color: #6b7a99;
-  font-weight: 500;
-}
-
-/* Legenda de stats */
-.stats-legend {
-  background: #fff;
-  border: 1.5px solid #c8d0df;
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.legend-title {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #6b7a99;
-  margin-bottom: 8px;
-}
-
-.legend-items { display: flex; flex-wrap: wrap; gap: 4px; }
-
-.leg {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  padding: 3px 7px;
-  border-radius: 4px;
-}
-
-.leg.outfield { background: #1a5fd4; color: #fff; }
-.leg.gk       { background: #f5c518; color: #0f1f3d; }
-
-.legend-note {
-  font-size: 10px;
-  color: #9aa3b8;
-  margin-top: 8px;
-}
-
-/* ═══ MAIN ═══ */
-.album-main { flex: 1; min-width: 0; }
-
-.album-header { margin-bottom: 20px; }
-
-.album-title {
-  font-family: 'Anton', sans-serif;
-  font-size: clamp(20px, 3vw, 28px);
-  color: #0f1f3d;
-  letter-spacing: 1px;
-}
-
-.album-subtitle {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: #6b7a99;
-  margin-top: 4px;
-  letter-spacing: 1px;
-}
-
-/* Banner da seleção */
-.album-team-banner {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  background: #fff;
-  border: 1.5px solid #c8d0df;
-  border-left: 5px solid #f5c518;
-  border-radius: 12px;
-  padding: 14px 20px;
-  margin-bottom: 22px;
-}
-
-.banner-flag {
-  width: 60px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-  border: 1px solid rgba(0,0,0,0.1);
-}
-
-.banner-badge { display: flex; flex-direction: column; }
-
-.banner-country {
-  font-family: 'Anton', sans-serif;
-  font-size: 22px;
-  color: #0f1f3d;
-  letter-spacing: 1px;
-}
-
-.banner-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2.5px;
-  color: #6b7a99;
-}
-
-.banner-collected {
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  padding: 14px 28px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(240, 192, 64, 0.1), rgba(240, 192, 64, 0.03));
+  border: 1px solid rgba(240, 192, 64, 0.22);
+  max-width: 500px;
   margin-left: auto;
-  background: #0f1f3d;
-  color: #f5c518;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 1px;
-  padding: 6px 14px;
-  border-radius: 8px;
+  margin-right: auto;
+  flex-wrap: wrap;
 }
 
-/* Loading */
+.selecionada-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #b8860b;
+}
+
+.selecionada-nome {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: #f0c040;
+  letter-spacing: 2px;
+}
+
+.selecionada-count {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.07);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* ─── Loading ─── */
 .loading-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 80px 0;
-  color: #6b7a99;
-  font-weight: 600;
-  letter-spacing: 1px;
-  font-size: 14px;
+  gap: 20px;
+  padding: 60px 0;
 }
 
 .spinner {
-  width: 44px;
-  height: 44px;
-  border: 3px solid #c8d0df;
-  border-top-color: #1a5fd4;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  position: relative;
+  width: 72px;
+  height: 72px;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-inner {
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(240, 192, 64, 0.15);
+  border-top-color: #f0c040;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
 
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: #9aa3b8;
+.spinner-bola {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  animation: spin 1.8s linear infinite reverse;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-texto {
+  color: rgba(255, 255, 255, 0.45);
   font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   font-weight: 600;
 }
 
-.empty-icon { font-size: 50px; margin-bottom: 16px; opacity: 0.5; }
-
-/* ═══ FIGURINHAS ═══ */
-.sticker-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 16px;
-}
-
-.sticker {
-  background: #fff;
-  border-radius: 12px;
-  border: 1.5px solid #c8d0df;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  cursor: pointer;
-  animation: sticker-in 0.4s ease both;
-  animation-delay: var(--delay);
-  transition: transform .3s ease, box-shadow .3s ease;
-}
-
-.sticker:hover {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-  border-color: #1a5fd4;
-}
-
-@keyframes sticker-in {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* Topo colorido */
-.sticker-top {
-  background: linear-gradient(135deg, #1a3a7a 0%, #1a5fd4 100%);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 8px;
-}
-
-.is-gk .sticker-top {
-  background: linear-gradient(135deg, #7a5500 0%, #c89600 100%);
-}
-
-.sticker-num {
-  font-family: 'Anton', sans-serif;
-  font-size: 14px;
-  color: rgba(255,255,255,0.75);
+/* ─── Estado vazio ─── */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 18px;
+  font-weight: 600;
   letter-spacing: 0.5px;
 }
 
-.sticker-flag {
-  width: 26px;
-  height: 17px;
-  object-fit: cover;
-  border-radius: 3px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.3);
+.empty-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+  opacity: 0.35;
 }
 
-/* Foto */
-.sticker-photo-wrap {
-  background: linear-gradient(180deg, #d6e4f7 0%, #eef3fb 100%);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 110px;
+/* ─── Grid ─── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 22px;
+}
+
+/* ─── Card base ─── */
+.card {
+  position: relative;
+  background: linear-gradient(145deg, #0d1e3e 0%, #091529 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 22px 16px 18px;
+  text-align: center;
   overflow: hidden;
+  cursor: pointer;
+  animation: card-entrada 0.45s ease both;
+  animation-delay: var(--delay);
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.35s ease;
 }
 
-.is-gk .sticker-photo-wrap {
-  background: linear-gradient(180deg, #fdf0c2 0%, #fdf7e3 100%);
+@keyframes card-entrada {
+  from { opacity: 0; transform: translateY(28px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-.sticker-photo {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
+/* Faixa dourada topo */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #f0c040, transparent);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+
+/* Reflexo holográfico */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(240, 192, 64, 0.06) 70%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+
+.card:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.7),
+              0 0 40px rgba(240, 192, 64, 0.18);
+}
+
+.card:hover::before { opacity: 1; }
+.card:hover::after  { opacity: 1; }
+
+/* Número da figurinha */
+.card-num {
+  position: absolute;
+  top: 11px;
+  left: 13px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  color: rgba(240, 192, 64, 0.5);
+  letter-spacing: 1px;
+}
+
+/* ─── Foto ─── */
+.foto-wrapper {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 16px;
+}
+
+.foto-ring {
+  position: absolute;
+  inset: -4px;
   border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: conic-gradient(#f0c040 0deg, #b8860b 120deg, #f0c040 240deg, #b8860b 360deg);
+  animation: ring-spin 6s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.card:hover .foto-ring { opacity: 1; }
+
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+.foto-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #091529;
+  margin: 2px;
+}
+
+.foto {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(240, 192, 64, 0.4);
+  transition: border-color 0.35s, box-shadow 0.35s;
+}
+
+.card:hover .foto {
+  border-color: #f0c040;
+  box-shadow: 0 0 18px rgba(240, 192, 64, 0.45);
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ─── Info ─── */
+.card-nome {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  line-height: 1.1;
   margin-bottom: 8px;
 }
 
-/* Nome e posição */
-.sticker-body {
-  padding: 8px 8px 4px;
-  text-align: center;
-  border-bottom: 1px solid #eef0f5;
-}
-
-.sticker-name {
-  font-family: 'Barlow Condensed', sans-serif;
+.card-posicao {
+  display: inline-block;
+  font-size: 10px;
   font-weight: 700;
-  font-size: 13px;
-  color: #0f1f3d;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sticker-pos {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: #6b7a99;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
-  margin-top: 2px;
+  color: #f0c040;
+  background: rgba(240, 192, 64, 0.1);
+  border: 1px solid rgba(240, 192, 64, 0.28);
+  padding: 3px 11px;
+  border-radius: 20px;
+  margin-bottom: 12px;
 }
 
-/* Stats */
-.sticker-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  padding: 6px 6px 8px;
-  gap: 4px;
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+  margin-top: 12px;
 }
 
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
+/* ─── Transições Vue ─── */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-.stat-label {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 8px;
-  letter-spacing: 1px;
-  color: #fff;
-  background: #1a5fd4;
-  border-radius: 3px;
-  padding: 1px 4px;
-  line-height: 1.4;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
-.gk-stats .stat-label {
-  background: #c89600;
-  color: #0f1f3d;
+/* ─── Responsividade ─── */
+@media (max-width: 768px) {
+  .container { padding: 28px 16px 60px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 14px; }
+  .foto-wrapper { width: 80px; height: 80px; }
+  .card-nome { font-size: 16px; }
+  .selecionada-banner { flex-direction: column; gap: 6px; }
 }
 
-.stat-val {
-  font-family: 'Anton', sans-serif;
-  font-size: 14px;
-  color: #0f1f3d;
-  line-height: 1.2;
-}
-
-/* ═══ RESPONSIVO ═══ */
-@media (max-width: 900px) {
-  .album-wrapper { flex-direction: column; }
-  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
-  .stats-legend { display: none; }
-  .sticker-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-}
-
-@media (max-width: 500px) {
-  .sticker-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .album-wrapper { padding: 16px 12px 40px; }
+@media (max-width: 480px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
