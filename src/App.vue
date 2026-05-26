@@ -69,6 +69,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Partículas decorativas de fundo -->
   <div class="bg-orbs">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -77,6 +78,7 @@ onMounted(() => {
 
   <div class="container">
 
+    <!-- Cabeçalho -->
     <header class="header">
       <div class="header-badge">FIFA WORLD CUP</div>
       <h1 class="titulo">
@@ -87,6 +89,7 @@ onMounted(() => {
       <p class="subtitulo">Selecione uma seleção e monte seu álbum</p>
     </header>
 
+    <!-- Seletor de país -->
     <div class="select-wrapper">
       <div class="select-icon">🌍</div>
       <select
@@ -106,6 +109,7 @@ onMounted(() => {
       <div class="select-arrow">▾</div>
     </div>
 
+    <!-- Nome da seleção selecionada -->
     <transition name="fade">
       <div v-if="paisSelecionado && !carregando" class="selecionada-banner">
         <span class="selecionada-label">SELEÇÃO</span>
@@ -116,6 +120,7 @@ onMounted(() => {
       </div>
     </transition>
 
+    <!-- Loading Spinner -->
     <transition name="fade">
       <div v-if="carregando" class="loading-area">
         <div class="spinner">
@@ -126,30 +131,39 @@ onMounted(() => {
       </div>
     </transition>
 
-    <div class="grid">
+    <!-- Grid de cards -->
+    <transition-group name="card-list" tag="div" class="grid">
       <div
         class="card"
         v-for="(jogador, index) in jogadores"
         :key="jogador.id"
         :style="{ '--delay': index * 0.05 + 's' }"
       >
-        <div class="card-num">#{{ index + 1 }}</div>
+        <!-- Número da figurinha -->
+        <div class="card-numero">#{{ index + 1 }}</div>
 
-        <div class="foto-wrapper">
-          <div class="foto-ring"></div>
-          <div class="foto-bg"></div>
-          <div class="foto">
-            <img :src="jogador.photo" :alt="jogador.name" />
-          </div>
+        <!-- Foto -->
+        <div class="card-foto-wrapper">
+          <img
+            :src="jogador.photo"
+            :alt="jogador.name"
+            class="card-foto"
+          />
+          <div class="card-foto-brilho"></div>
         </div>
 
-        <div class="card-nome">{{ jogador.name }}</div>
-        <div class="card-posicao">{{ jogador.position }}</div>
+        <!-- Info -->
+        <div class="card-info">
+          <h2 class="card-nome">{{ jogador.name }}</h2>
+          <span class="card-posicao">{{ jogador.position }}</span>
+        </div>
 
-        <div class="divider"></div>
+        <!-- Efeito holográfico no hover -->
+        <div class="card-holo"></div>
       </div>
-    </div>
+    </transition-group>
 
+    <!-- Estado vazio -->
     <transition name="fade">
       <div v-if="!paisSelecionado && !carregando" class="empty-state">
         <div class="empty-icon">📋</div>
@@ -161,23 +175,43 @@ onMounted(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&display=swap');
+/* ─── Imports de fontes ─── */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap');
 
-/* ─── Reset ─── */
+/* ─── Reset e variáveis globais ─── */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+:root {
+  --gold:       #f0c040;
+  --gold-light: #ffe07a;
+  --gold-dark:  #b8860b;
+  --azul-deep:  #050d1a;
+  --azul-mid:   #0a1f3c;
+  --azul-card:  rgba(10, 30, 65, 0.7);
+  --verde:      #00e676;
+  --branco:     #ffffff;
+  --cinza:      rgba(255,255,255,0.55);
+  --radius-lg:  20px;
+  --radius-md:  14px;
+  --radius-sm:  8px;
+  --shadow-card: 0 20px 50px rgba(0,0,0,0.5);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'Rajdhani', sans-serif;
+  --transition:   0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 html, body {
   min-height: 100vh;
-  background: #07111f;
-  font-family: 'Rajdhani', sans-serif;
+  background: var(--azul-deep);
+  font-family: var(--font-body);
   overflow-x: hidden;
 }
 
-/* ─── Orbs de fundo ─── */
+/* ─── Fundo com orbs animadas ─── */
 .bg-orbs {
   position: fixed;
   inset: 0;
@@ -185,14 +219,14 @@ html, body {
   pointer-events: none;
   overflow: hidden;
   background: radial-gradient(ellipse at 20% 10%, #0d2b5e 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 80%, #051630 0%, #07111f 100%);
+              radial-gradient(ellipse at 80% 80%, #051630 0%, #050d1a 100%);
 }
 
 .orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.22;
+  opacity: 0.25;
   animation: orb-float 12s ease-in-out infinite;
 }
 
@@ -218,11 +252,11 @@ html, body {
 }
 
 @keyframes orb-float {
-  0%, 100% { transform: translateY(0px)   scale(1);    }
+  0%, 100% { transform: translateY(0px) scale(1); }
   50%       { transform: translateY(-40px) scale(1.08); }
 }
 
-/* ─── Container ─── */
+/* ─── Container principal ─── */
 .container {
   position: relative;
   z-index: 1;
@@ -239,23 +273,23 @@ html, body {
 
 .header-badge {
   display: inline-block;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-body);
   font-weight: 700;
   font-size: 11px;
   letter-spacing: 4px;
-  color: #f0c040;
-  border: 1px solid #b8860b;
+  color: var(--gold);
+  border: 1px solid var(--gold-dark);
   padding: 5px 18px;
   border-radius: 30px;
   margin-bottom: 18px;
-  background: rgba(240, 192, 64, 0.08);
+  background: rgba(240,192,64,0.08);
   text-transform: uppercase;
 }
 
 .titulo {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(52px, 9vw, 100px);
-  color: #ffffff;
+  color: var(--branco);
   line-height: 0.95;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -273,18 +307,19 @@ html, body {
 }
 
 .titulo-ano {
-  color: #f0c040;
+  color: var(--gold);
+  -webkit-text-stroke: 1px var(--gold-dark);
 }
 
 .subtitulo {
   margin-top: 14px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--cinza);
   font-size: 17px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 1px;
 }
 
-/* ─── Select ─── */
+/* ─── Select personalizado ─── */
 .select-wrapper {
   position: relative;
   max-width: 560px;
@@ -304,40 +339,40 @@ html, body {
 .select-pais {
   width: 100%;
   padding: 18px 50px 18px 54px;
-  border-radius: 14px;
-  border: 1px solid rgba(240, 192, 64, 0.35);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(240,192,64,0.35);
   background: rgba(10, 25, 55, 0.85);
   backdrop-filter: blur(16px);
-  color: #ffffff;
-  font-family: 'Rajdhani', sans-serif;
+  color: var(--branco);
+  font-family: var(--font-body);
   font-size: 17px;
   font-weight: 600;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
   outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .select-pais:focus {
-  border-color: #f0c040;
-  box-shadow: 0 0 0 3px rgba(240, 192, 64, 0.2), 0 8px 30px rgba(0, 0, 0, 0.4);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(240,192,64,0.2), 0 8px 30px rgba(0,0,0,0.4);
 }
 
 .select-pais option {
   background: #0d1f40;
-  color: #ffffff;
+  color: var(--branco);
 }
 
 .select-arrow {
   position: absolute;
   right: 18px;
-  color: #f0c040;
+  color: var(--gold);
   font-size: 20px;
   pointer-events: none;
 }
 
-/* ─── Banner da seleção ─── */
+/* ─── Banner da seleção escolhida ─── */
 .selecionada-banner {
   display: flex;
   align-items: center;
@@ -345,9 +380,9 @@ html, body {
   gap: 16px;
   margin-bottom: 40px;
   padding: 14px 28px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(240, 192, 64, 0.1), rgba(240, 192, 64, 0.03));
-  border: 1px solid rgba(240, 192, 64, 0.22);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(240,192,64,0.12), rgba(240,192,64,0.04));
+  border: 1px solid rgba(240,192,64,0.25);
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
@@ -358,25 +393,25 @@ html, body {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 3px;
-  color: #b8860b;
+  color: var(--gold-dark);
 }
 
 .selecionada-nome {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 28px;
-  color: #f0c040;
+  color: var(--gold);
   letter-spacing: 2px;
 }
 
 .selecionada-count {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.07);
+  color: var(--cinza);
+  background: rgba(255,255,255,0.07);
   padding: 3px 10px;
   border-radius: 20px;
 }
 
-/* ─── Loading ─── */
+/* ─── Spinner de loading ─── */
 .loading-area {
   display: flex;
   flex-direction: column;
@@ -394,8 +429,8 @@ html, body {
 .spinner-inner {
   position: absolute;
   inset: 0;
-  border: 3px solid rgba(240, 192, 64, 0.15);
-  border-top-color: #f0c040;
+  border: 3px solid rgba(240,192,64,0.15);
+  border-top-color: var(--gold);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
 }
@@ -415,7 +450,7 @@ html, body {
 }
 
 .loading-texto {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--cinza);
   font-size: 16px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -426,7 +461,7 @@ html, body {
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255,255,255,0.25);
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -435,169 +470,166 @@ html, body {
 .empty-icon {
   font-size: 60px;
   margin-bottom: 20px;
-  opacity: 0.35;
+  opacity: 0.4;
 }
 
-/* ─── Grid ─── */
+/* ─── Grid de cards ─── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
 }
 
-/* ─── Card base ─── */
+/* ─── Card da figurinha ─── */
 .card {
   position: relative;
-  background: linear-gradient(145deg, #0d1e3e 0%, #091529 100%);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 22px 16px 18px;
+  background: var(--azul-card);
+  backdrop-filter: blur(18px);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 28px 20px 22px;
   text-align: center;
   overflow: hidden;
   cursor: pointer;
-  animation: card-entrada 0.45s ease both;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+  animation: card-entrada 0.5s ease both;
   animation-delay: var(--delay);
-  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              box-shadow 0.35s ease;
 }
 
 @keyframes card-entrada {
-  from { opacity: 0; transform: translateY(28px) scale(0.94); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-/* Faixa dourada topo */
+/* Faixa dourada no topo do card */
 .card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #f0c040, transparent);
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
   opacity: 0;
-  transition: opacity 0.35s;
+  transition: opacity var(--transition);
 }
 
-/* Reflexo holográfico */
-.card::after {
-  content: '';
+.card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 28px 60px rgba(0,0,0,0.6), 0 0 30px rgba(240,192,64,0.15);
+  border-color: rgba(240,192,64,0.4);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Efeito holográfico no hover */
+.card-holo {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     135deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.04) 50%,
-    rgba(240, 192, 64, 0.06) 70%,
+    transparent 0%,
+    rgba(255,255,255,0.04) 40%,
+    rgba(240,192,64,0.06) 60%,
     transparent 100%
   );
   opacity: 0;
-  transition: opacity 0.35s;
+  transition: opacity var(--transition);
   pointer-events: none;
 }
 
-.card:hover {
-  transform: translateY(-12px) scale(1.03);
-  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.7),
-              0 0 40px rgba(240, 192, 64, 0.18);
+.card:hover .card-holo {
+  opacity: 1;
 }
 
-.card:hover::before { opacity: 1; }
-.card:hover::after  { opacity: 1; }
-
 /* Número da figurinha */
-.card-num {
+.card-numero {
   position: absolute;
-  top: 11px;
-  left: 13px;
-  font-family: 'Bebas Neue', sans-serif;
+  top: 12px;
+  left: 14px;
+  font-family: var(--font-display);
   font-size: 13px;
-  color: rgba(240, 192, 64, 0.5);
+  color: var(--gold-dark);
   letter-spacing: 1px;
 }
 
-/* ─── Foto ─── */
-.foto-wrapper {
+/* Foto do jogador */
+.card-foto-wrapper {
   position: relative;
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 16px;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 18px;
 }
 
-.foto-ring {
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  background: conic-gradient(#f0c040 0deg, #b8860b 120deg, #f0c040 240deg, #b8860b 360deg);
-  animation: ring-spin 6s linear infinite;
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-.card:hover .foto-ring { opacity: 1; }
-
-@keyframes ring-spin {
-  to { transform: rotate(360deg); }
-}
-
-.foto-bg {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: #091529;
-  margin: 2px;
-}
-
-.foto {
-  position: absolute;
-  inset: 3px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid rgba(240, 192, 64, 0.4);
-  transition: border-color 0.35s, box-shadow 0.35s;
-}
-
-.card:hover .foto {
-  border-color: #f0c040;
-  box-shadow: 0 0 18px rgba(240, 192, 64, 0.45);
-}
-
-.foto img {
+.card-foto {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid rgba(240,192,64,0.5);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  position: relative;
+  z-index: 1;
   display: block;
 }
 
-/* ─── Info ─── */
+.card:hover .card-foto {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(240,192,64,0.4);
+}
+
+/* Brilho atrás da foto */
+.card-foto-brilho {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240,192,64,0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.card:hover .card-foto-brilho {
+  opacity: 1;
+}
+
+/* Info do jogador */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .card-nome {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  color: #ffffff;
-  letter-spacing: 1.5px;
-  line-height: 1.1;
-  margin-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--branco);
+  letter-spacing: 1px;
+  line-height: 1.15;
 }
 
 .card-posicao {
   display: inline-block;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #f0c040;
-  background: rgba(240, 192, 64, 0.1);
-  border: 1px solid rgba(240, 192, 64, 0.28);
-  padding: 3px 11px;
+  color: var(--gold);
+  background: rgba(240,192,64,0.1);
+  border: 1px solid rgba(240,192,64,0.25);
+  padding: 3px 10px;
   border-radius: 20px;
-  margin-bottom: 12px;
 }
 
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
-  margin-top: 12px;
-}
-
-/* ─── Transições Vue ─── */
+/* ─── Animações de transição (Vue) ─── */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.4s ease, transform 0.4s ease;
@@ -609,16 +641,48 @@ html, body {
   transform: translateY(10px);
 }
 
+.card-list-enter-active {
+  transition: all 0.4s ease;
+}
+
+.card-list-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
 /* ─── Responsividade ─── */
 @media (max-width: 768px) {
-  .container { padding: 28px 16px 60px; }
-  .grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 14px; }
-  .foto-wrapper { width: 80px; height: 80px; }
-  .card-nome { font-size: 16px; }
-  .selecionada-banner { flex-direction: column; gap: 6px; }
+  .container {
+    padding: 28px 16px 60px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    padding: 22px 14px 18px;
+  }
+
+  .card-foto-wrapper {
+    width: 85px;
+    height: 85px;
+  }
+
+  .card-nome {
+    font-size: 15px;
+  }
+
+  .selecionada-banner {
+    flex-direction: column;
+    gap: 6px;
+  }
 }
 
 @media (max-width: 480px) {
-  .grid { grid-template-columns: repeat(2, 1fr); }
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
