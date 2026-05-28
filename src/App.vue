@@ -176,7 +176,7 @@ onMounted(() => {
                 <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="sticker-flag" alt="País" />
               </div>
               <div class="sticker-photo-wrap">
-                <img :src="jogador.photo" :alt="jogador.name" class="sticker-photo" />
+                <img :src="jogador.photo" :alt="jogador.name" class="sticker-photo" @error="e => e.target.style.opacity = '0'" />
               </div>
               <div class="sticker-info">
                 <div class="sticker-name">{{ jogador.name }}</div>
@@ -629,6 +629,9 @@ html, body {
   aspect-ratio: 1;
   overflow: hidden;
   background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sticker-photo {
@@ -636,6 +639,13 @@ html, body {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.sticker-photo-wrap::after {
+  content: '👤';
+  font-size: 40px;
+  opacity: 0.3;
+  position: absolute;
 }
 
 .sticker-info {
