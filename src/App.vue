@@ -242,6 +242,8 @@ onMounted(() => {
   --blue:         #003DA5;
   --blue-dark:    #002d7a;
   --blue-light:   #1a56c4;
+  --green:        #00a650;
+  --green-dark:   #007a3d;
   --white:        #ffffff;
 
   --bg:           #edeae3;
@@ -409,7 +411,7 @@ html, body {
   height: 4px;
 }
 .copa-badge-stripe.red  { background: var(--red); }
-.copa-badge-stripe.blue { background: var(--blue); }
+.copa-badge-stripe.blue { background: var(--green); }
 
 .copa-badge-text {
   display: flex;
@@ -460,7 +462,7 @@ html, body {
 }
 .stripe.red   { width: 48px; background: var(--red); }
 .stripe.blue  { width: 32px; background: var(--blue); }
-.stripe.white { width: 16px; background: #bbb; }
+.stripe.white { width: 16px; background: #00a650; }
 
 /* ─── Loading ─── */
 .loading-area {
@@ -523,7 +525,7 @@ html, body {
   padding: 16px 24px;
   background: white;
   border-bottom: 3px solid;
-  border-image: linear-gradient(90deg, var(--red), var(--blue)) 1;
+  border-image: linear-gradient(90deg, var(--red), var(--blue), #00a650) 1;
 }
 
 .album-header-left {
@@ -573,7 +575,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 20px 28px;
-  background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 50%, var(--red) 100%);
+  background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 40%, var(--green) 70%, var(--red) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -689,7 +691,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 5px 7px 4px;
-  background: linear-gradient(90deg, var(--blue), var(--red));
+  background: linear-gradient(90deg, var(--blue), #00a650, var(--red));
 }
 
 .sticker-num {
@@ -769,7 +771,7 @@ html, body {
   padding: 16px 24px;
   background: white;
   border-top: 3px solid;
-  border-image: linear-gradient(90deg, var(--red), var(--blue)) 1;
+  border-image: linear-gradient(90deg, var(--red), var(--blue), #00a650) 1;
 }
 
 .btn-page {
