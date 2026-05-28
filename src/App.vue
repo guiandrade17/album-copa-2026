@@ -110,14 +110,31 @@ onMounted(() => {
         <span class="sidebar-team-name">{{ paisSelecionado }}</span>
         <span class="sidebar-count">{{ jogadores.length }} jogadores</span>
       </div>
+
+      <!-- Copa 2026 badge -->
+      <div class="copa-badge">
+        <div class="copa-badge-stripe red"></div>
+        <div class="copa-badge-stripe blue"></div>
+        <div class="copa-badge-text">
+          <span>🏆</span>
+          <span>FIFA WORLD CUP</span>
+          <span class="copa-year">2026</span>
+        </div>
+        <div class="copa-badge-stripe blue"></div>
+        <div class="copa-badge-stripe red"></div>
+      </div>
     </aside>
 
     <!-- Main content -->
     <main class="main">
 
-      <!-- Page header -->
       <div class="page-header">
         <h1 class="page-title">ALBUM DE FIGURINHAS: SELEÇÕES DO MUNDO</h1>
+        <div class="header-stripes">
+          <span class="stripe red"></span>
+          <span class="stripe blue"></span>
+          <span class="stripe white"></span>
+        </div>
       </div>
 
       <!-- Loading -->
@@ -142,8 +159,8 @@ onMounted(() => {
           <div class="album-header-left">
             <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="album-flag" alt="Bandeira" />
             <div class="album-title-block">
-              <div class="album-sub">Álbum de Figurinhas</div>
-              <div class="album-title">{{ paisSelecionado }}</div>
+              <div class="album-sub">ÁLBUM DE FIGURINHAS</div>
+              <div class="album-title">{{ paisSelecionado.toUpperCase() }}</div>
             </div>
           </div>
           <div class="album-header-right">
@@ -153,13 +170,18 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Team banner inside album -->
+        <!-- Team banner -->
         <div class="team-banner">
-          <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="team-banner-flag" alt="Bandeira" />
-          <div class="team-badge">
-            <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="team-badge-img" alt="Escudo" />
+          <div class="banner-left">
+            <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="team-banner-flag" alt="Bandeira" />
+            <div class="team-badge">
+              <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="team-badge-img" alt="Escudo" />
+            </div>
           </div>
           <div class="team-banner-name">SELEÇÃO {{ paisSelecionado.toUpperCase() }}</div>
+          <div class="banner-deco">
+            <span>2026</span>
+          </div>
         </div>
 
         <!-- Stickers grid -->
@@ -176,7 +198,12 @@ onMounted(() => {
                 <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="sticker-flag" alt="País" />
               </div>
               <div class="sticker-photo-wrap">
-                <img :src="jogador.photo" :alt="jogador.name" class="sticker-photo" @error="e => e.target.style.opacity = '0'" />
+                <img
+                  :src="jogador.photo"
+                  :alt="jogador.name"
+                  class="sticker-photo"
+                  @error="e => e.target.style.opacity = '0'"
+                />
               </div>
               <div class="sticker-info">
                 <div class="sticker-name">{{ jogador.name }}</div>
@@ -209,18 +236,20 @@ onMounted(() => {
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --green:        #1a7a2e;
-  --green-dark:   #145c22;
-  --green-light:  #22a03c;
-  --gold:         #f5c518;
-  --gold-dark:    #c9a00a;
-  --bg:           #e8e4dc;
-  --bg-album:     #f0ece3;
-  --bg-sidebar:   #1c2333;
-  --text-dark:    #1a1a2e;
-  --text-mid:     #444;
+  /* Cores oficiais Copa 2026 */
+  --red:          #C8102E;
+  --red-dark:     #a00d24;
+  --blue:         #003DA5;
+  --blue-dark:    #002d7a;
+  --blue-light:   #1a56c4;
   --white:        #ffffff;
-  --shadow:       0 4px 20px rgba(0,0,0,0.15);
+
+  --bg:           #edeae3;
+  --bg-album:     #f2efe8;
+  --bg-sidebar:   #111827;
+  --text-dark:    #0f1923;
+  --text-mid:     #555;
+  --shadow:       0 4px 24px rgba(0,0,0,0.13);
   --radius:       10px;
 }
 
@@ -232,10 +261,7 @@ html, body {
 }
 
 /* ─── Layout ─── */
-.app {
-  display: flex;
-  min-height: 100vh;
-}
+.app { display: flex; min-height: 100vh; }
 
 /* ─── Sidebar ─── */
 .sidebar {
@@ -253,15 +279,12 @@ html, body {
   align-items: center;
   gap: 10px;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .logo-icon { font-size: 28px; }
 
-.logo-text {
-  display: flex;
-  flex-direction: column;
-}
+.logo-text { display: flex; flex-direction: column; }
 
 .logo-main {
   font-family: 'Oswald', sans-serif;
@@ -273,21 +296,18 @@ html, body {
 
 .logo-sub {
   font-size: 11px;
-  color: var(--gold);
+  color: var(--red);
   letter-spacing: 2px;
   text-transform: uppercase;
+  font-weight: 600;
 }
 
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
 
 .nav-item {
   padding: 10px 14px;
   border-radius: 8px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.55);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -295,27 +315,30 @@ html, body {
   text-decoration: none;
 }
 
-.nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
-.nav-item.active { background: var(--green); color: white; }
+.nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+
+.nav-item.active {
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: white;
+  font-weight: 600;
+}
 
 .sidebar-select-label {
   font-size: 10px;
   letter-spacing: 2px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.3);
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.select-wrapper {
-  position: relative;
-}
+.select-wrapper { position: relative; }
 
 .select-pais {
   width: 100%;
   padding: 10px 32px 10px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.07);
   color: white;
   font-family: 'Barlow', sans-serif;
   font-size: 14px;
@@ -327,15 +350,15 @@ html, body {
   transition: border-color 0.2s;
 }
 
-.select-pais:focus { border-color: var(--green-light); }
-.select-pais option { background: #1c2333; color: white; }
+.select-pais:focus { border-color: var(--blue-light); }
+.select-pais option { background: #1a2540; color: white; }
 
 .select-chevron {
   position: absolute;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.4);
   pointer-events: none;
 }
 
@@ -347,7 +370,7 @@ html, body {
   padding: 12px;
   background: rgba(255,255,255,0.05);
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.07);
 }
 
 .sidebar-flag {
@@ -367,8 +390,46 @@ html, body {
 
 .sidebar-count {
   font-size: 12px;
-  color: var(--gold);
-  font-weight: 500;
+  color: var(--blue-light);
+  font-weight: 600;
+}
+
+/* Copa badge na sidebar */
+.copa-badge {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.copa-badge-stripe {
+  height: 4px;
+}
+.copa-badge-stripe.red  { background: var(--red); }
+.copa-badge-stripe.blue { background: var(--blue); }
+
+.copa-badge-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  background: rgba(255,255,255,0.04);
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+
+.copa-year {
+  font-size: 22px;
+  color: white;
+  letter-spacing: 3px;
 }
 
 /* ─── Main ─── */
@@ -379,9 +440,7 @@ html, body {
   background: var(--bg);
 }
 
-.page-header {
-  margin-bottom: 24px;
-}
+.page-header { margin-bottom: 24px; }
 
 .page-title {
   font-family: 'Oswald', sans-serif;
@@ -390,7 +449,18 @@ html, body {
   color: var(--text-dark);
   letter-spacing: 1px;
   text-transform: uppercase;
+  margin-bottom: 8px;
 }
+
+.header-stripes { display: flex; gap: 4px; }
+
+.stripe {
+  height: 3px;
+  border-radius: 2px;
+}
+.stripe.red   { width: 48px; background: var(--red); }
+.stripe.blue  { width: 32px; background: var(--blue); }
+.stripe.white { width: 16px; background: #bbb; }
 
 /* ─── Loading ─── */
 .loading-area {
@@ -408,15 +478,16 @@ html, body {
 .spinner {
   width: 44px;
   height: 44px;
-  border: 3px solid rgba(26,122,46,0.2);
-  border-top-color: var(--green);
+  border: 3px solid rgba(0,61,165,0.2);
+  border-top-color: var(--blue);
+  border-right-color: var(--red);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ─── Empty state ─── */
+/* ─── Empty ─── */
 .empty-state {
   display: flex;
   align-items: center;
@@ -434,12 +505,7 @@ html, body {
 }
 
 .empty-icon { font-size: 56px; margin-bottom: 16px; }
-
-.empty-album p {
-  color: var(--text-mid);
-  font-size: 16px;
-  line-height: 1.5;
-}
+.empty-album p { color: var(--text-mid); font-size: 16px; line-height: 1.5; }
 
 /* ─── Album ─── */
 .album {
@@ -456,7 +522,8 @@ html, body {
   justify-content: space-between;
   padding: 16px 24px;
   background: white;
-  border-bottom: 2px solid #e0dbd0;
+  border-bottom: 3px solid;
+  border-image: linear-gradient(90deg, var(--red), var(--blue)) 1;
 }
 
 .album-header-left {
@@ -470,14 +537,14 @@ html, body {
   height: 35px;
   object-fit: cover;
   border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .album-sub {
-  font-size: 11px;
-  color: #888;
+  font-size: 10px;
+  color: #999;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   font-weight: 600;
 }
 
@@ -487,17 +554,16 @@ html, body {
   font-weight: 700;
   color: var(--text-dark);
   letter-spacing: 1px;
-  text-transform: uppercase;
 }
 
 .counter-badge {
-  background: var(--green);
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
   color: white;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 6px;
 }
 
@@ -505,9 +571,9 @@ html, body {
 .team-banner {
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
   padding: 20px 28px;
-  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 60%, var(--green-light) 100%);
+  background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 50%, var(--red) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -517,12 +583,20 @@ html, body {
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
-    45deg,
+    -45deg,
     transparent,
-    transparent 10px,
-    rgba(255,255,255,0.03) 10px,
-    rgba(255,255,255,0.03) 20px
+    transparent 12px,
+    rgba(255,255,255,0.03) 12px,
+    rgba(255,255,255,0.03) 24px
   );
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
 }
 
 .team-banner-flag {
@@ -532,8 +606,6 @@ html, body {
   border-radius: 5px;
   box-shadow: 0 3px 12px rgba(0,0,0,0.4);
   border: 2px solid rgba(255,255,255,0.3);
-  position: relative;
-  z-index: 1;
 }
 
 .team-badge {
@@ -546,8 +618,6 @@ html, body {
   justify-content: center;
   overflow: hidden;
   box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-  position: relative;
-  z-index: 1;
 }
 
 .team-badge-img {
@@ -568,13 +638,24 @@ html, body {
   z-index: 1;
 }
 
+.banner-deco {
+  font-family: 'Oswald', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.12);
+  letter-spacing: 4px;
+  position: relative;
+  z-index: 1;
+  user-select: none;
+}
+
 /* ─── Stickers grid ─── */
 .stickers-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 14px;
   padding: 24px;
-  background: #ece8df;
+  background: #e6e2d9;
 }
 
 .sticker {
@@ -591,7 +672,7 @@ html, body {
   background: white;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
   border: 1px solid rgba(0,0,0,0.06);
@@ -599,15 +680,16 @@ html, body {
 
 .sticker-inner:hover {
   transform: translateY(-4px) scale(1.04);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
 }
 
+/* Topo da figurinha — degradê vermelho/azul Copa 2026 */
 .sticker-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 7px 3px;
-  background: var(--green);
+  padding: 5px 7px 4px;
+  background: linear-gradient(90deg, var(--blue), var(--red));
 }
 
 .sticker-num {
@@ -624,14 +706,16 @@ html, body {
   border-radius: 2px;
 }
 
+/* Foto */
 .sticker-photo-wrap {
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
-  background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+  background: linear-gradient(180deg, #dce8f5 0%, #b8d0f0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .sticker-photo {
@@ -641,17 +725,13 @@ html, body {
   display: block;
 }
 
-.sticker-photo-wrap::after {
-  content: '👤';
-  font-size: 40px;
-  opacity: 0.3;
-  position: absolute;
-}
-
+/* Info */
 .sticker-info {
   padding: 6px 6px 8px;
   text-align: center;
   background: white;
+  border-top: 2px solid;
+  border-image: linear-gradient(90deg, var(--blue), var(--red)) 1;
 }
 
 .sticker-name {
@@ -667,14 +747,15 @@ html, body {
   text-overflow: ellipsis;
 }
 
+/* Badge de posição — alterna vermelho/azul */
 .sticker-position {
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: white;
-  background: var(--green-dark);
-  padding: 2px 6px;
+  background: var(--blue);
+  padding: 2px 7px;
   border-radius: 3px;
   display: inline-block;
   margin-top: 4px;
@@ -687,7 +768,8 @@ html, body {
   justify-content: space-between;
   padding: 16px 24px;
   background: white;
-  border-top: 2px solid #e0dbd0;
+  border-top: 3px solid;
+  border-image: linear-gradient(90deg, var(--red), var(--blue)) 1;
 }
 
 .btn-page {
@@ -697,31 +779,29 @@ html, body {
   letter-spacing: 1px;
   padding: 8px 20px;
   border-radius: 6px;
-  border: 2px solid var(--green);
+  border: 2px solid var(--blue);
   background: transparent;
-  color: var(--green);
+  color: var(--blue);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .btn-page:hover:not(:disabled) {
-  background: var(--green);
+  background: var(--blue);
   color: white;
 }
 
-.btn-page:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
+.btn-page:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .btn-next {
-  background: var(--green);
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
   color: white;
+  border-color: var(--red);
 }
 
 .btn-next:hover:not(:disabled) {
-  background: var(--green-dark);
-  border-color: var(--green-dark);
+  background: var(--red-dark);
+  border-color: var(--red-dark);
 }
 
 .page-indicator {
@@ -741,9 +821,11 @@ html, body {
   .app { flex-direction: column; }
   .sidebar { width: 100%; min-width: unset; flex-direction: row; flex-wrap: wrap; gap: 12px; padding: 16px; }
   .sidebar-nav { flex-direction: row; }
+  .copa-badge { display: none; }
   .main { padding: 16px; }
   .stickers-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px; }
   .team-banner-name { font-size: 20px; }
+  .banner-deco { display: none; }
 }
 
 @media (max-width: 480px) {
