@@ -16,24 +16,6 @@
 
 ---
 
-## 📸 Preview do Projeto
-
-<div align="center">
-
-**🇧🇷 Seleção do Brasil**
-
-![Preview Brasil](src/assets/printBrasil.png)
-
-<br/>
-
-**🇦🇷 Seleção da Argentina**
-
-![Preview Argentina](src/assets/printArgentina.png)
-
-</div>
-
----
-
 ## 📌 Sobre o Projeto
 
 O **Álbum da Copa 2026** é uma aplicação web que simula um álbum de figurinhas digital, permitindo ao usuário selecionar qualquer seleção participante da Copa do Mundo e visualizar o elenco completo com fotos oficiais, nomes e posições dos jogadores — tudo consumido em tempo real pela [API-Football](https://www.api-football.com/).
