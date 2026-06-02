@@ -12,6 +12,8 @@
 
 > Álbum virtual interativo de seleções da Copa do Mundo 2026, desenvolvido em Vue 3 com consumo de API REST.
 
+🔗 **[Acesse o projeto ao vivo](https://guiandrade17.github.io/album-copa-2026/)**
+
 </div>
 
 ---
