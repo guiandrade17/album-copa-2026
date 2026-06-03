@@ -1299,50 +1299,9 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
 .asb-count { font-size:12px; color:var(--text-dim); background:var(--bg3); border:1px solid var(--border); padding:2px 10px; border-radius:20px; }
 .asb-page  { font-size:13px; color:var(--text-mid); font-weight:600; }
 
-/* ══════════ STICKERS ══════════ */
+/* ══════════ STICKERS GRID ══════════ */
+/* Os estilos individuais do card estão em FigurinhaCard.vue (scoped) */
 .stickers-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; }
-.sticker {
-  position:relative; background:var(--bg3); border-radius:12px; overflow:hidden;
-  border:1px solid var(--border); box-shadow:var(--sh-md); cursor:pointer;
-  display:flex; flex-direction:column;
-  animation:stk-in .45s cubic-bezier(.34,1.56,.64,1) both;
-  animation-delay:calc(var(--i)*.05s);
-  transition:transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s, border-color .28s;
-}
-@keyframes stk-in { from{opacity:0;transform:translateY(24px) scale(.88)} to{opacity:1;transform:translateY(0) scale(1)} }
-.sticker:hover {
-  transform:translateY(-8px) scale(1.04) rotate(.4deg);
-  box-shadow:0 24px 48px rgba(0,0,0,.7), 0 0 0 1px rgba(37,99,235,.45), 0 0 30px rgba(37,99,235,.15);
-  border-color:rgba(37,99,235,.5); z-index:5;
-}
-.stk-num { position:absolute; top:-7px; left:-7px; z-index:10; width:24px; height:24px; background:linear-gradient(135deg,var(--blue),var(--blue-dk)); border:2px solid var(--bg); border-radius:50%; font-size:9px; font-weight:800; color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Rajdhani',sans-serif; box-shadow:0 2px 10px rgba(0,0,0,.6); }
-.stk-glare { position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.09) 0%,transparent 55%); border-radius:12px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s; }
-.sticker:hover .stk-glare { opacity:1; }
-.stk-head { display:flex; align-items:center; justify-content:space-between; padding:7px 9px 6px; background:linear-gradient(90deg,var(--blue-dk) 0%,var(--blue) 55%,#8b0d1f 100%); flex-shrink:0; }
-.stk-head-l { display:flex; align-items:center; gap:5px; }
-.stk-flag   { width:22px; height:15px; object-fit:cover; border-radius:2px; box-shadow:0 1px 4px rgba(0,0,0,.5); }
-.stk-country{ font-size:8px; font-weight:800; letter-spacing:.5px; color:rgba(255,255,255,.7); }
-.stk-ball   { font-size:12px; opacity:.75; }
-.stk-photo-wrap { position:relative; width:100%; aspect-ratio:1; overflow:hidden; background:linear-gradient(180deg,#0d1628 0%,#080c14 100%); flex-shrink:0; }
-.stk-photo-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(0,61,165,.22),transparent 70%); }
-.stk-photo { width:100%; height:100%; object-fit:cover; display:block; position:relative; z-index:1; transition:transform .35s cubic-bezier(.34,1.56,.64,1); }
-.sticker:hover .stk-photo { transform:scale(1.1); }
-.stk-photo-grad { position:absolute; bottom:0; left:0; right:0; height:45%; background:linear-gradient(transparent,var(--bg3)); z-index:2; }
-.stk-overall { position:absolute; bottom:8px; right:8px; z-index:3; display:flex; flex-direction:column; align-items:center; background:rgba(0,0,0,.75); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.12); border-radius:7px; padding:4px 8px; min-width:36px; }
-.so-val { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#fff; line-height:1; }
-.so-lbl { font-size:7px; color:var(--gold); font-weight:800; letter-spacing:.5px; }
-.stk-identity { padding:9px 9px 4px; text-align:center; flex-shrink:0; }
-.stk-name { font-family:'Rajdhani',sans-serif; font-size:12px; font-weight:700; color:var(--text); text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2; }
-.stk-pos  { font-size:8px; font-weight:800; letter-spacing:1px; color:#fff; text-transform:uppercase; background:linear-gradient(90deg,var(--blue),var(--blue-lt)); padding:2px 9px; border-radius:4px; display:inline-block; margin-top:4px; }
-.stk-attrs { display:flex; flex-direction:column; gap:4px; padding:6px 9px 4px; flex:1; }
-.attr { display:grid; grid-template-columns:22px 1fr 20px; align-items:center; gap:5px; }
-.attr-s { font-size:7px; font-weight:800; letter-spacing:.5px; color:var(--text-mid); text-transform:uppercase; }
-.attr-bar-bg   { height:3px; background:rgba(255,255,255,.07); border-radius:3px; overflow:hidden; }
-.attr-bar-fill { height:100%; border-radius:3px; transition:width .9s cubic-bezier(.16,1,.3,1); }
-.attr-v { font-family:'Rajdhani',sans-serif; font-size:10px; font-weight:800; text-align:right; }
-.stk-foot { display:flex; align-items:center; justify-content:center; gap:5px; padding:5px 8px 8px; border-top:1px solid var(--border); background:rgba(255,255,255,.02); flex-shrink:0; }
-.stk-foot span { font-size:7px; font-weight:800; letter-spacing:1px; color:var(--text-dim); }
-.stk-foot-dot  { width:2px; height:2px; border-radius:50%; background:var(--text-dim); }
 
 /* ══════════ PAGINAÇÃO ══════════ */
 .pagination { display:flex; align-items:center; justify-content:space-between; background:var(--bg3); border:1px solid var(--border); border-radius:14px; padding:16px 24px; gap:12px; }
