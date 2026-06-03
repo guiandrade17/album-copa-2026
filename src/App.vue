@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import FigurinhaCard from './components/FigurinhaCard.vue'
 
 /* ══════════════════════════════════════════
    CONFIG
@@ -105,36 +106,7 @@ const flagsDestaque = [
   { name: 'Italy',     code: 'it' },
 ]
 
-const gerarStats = (jogador) => {
-  const seed = jogador.name.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-  const rng  = (min, max, off = 0) => {
-    const v = ((seed + off) * 2654435761) >>> 0
-    return min + (v % (max - min + 1))
-  }
-  const pos   = (jogador.position || '').toLowerCase()
-  const isGk  = pos.includes('goalkeeper')
-  const isDef = pos.includes('defender') || pos.includes('back')
-  const isMid = pos.includes('midfielder')
-  if (isGk) return [
-    { s: 'ELA', v: rng(60,92,1) }, { s: 'MAN', v: rng(62,93,2) },
-    { s: 'CHU', v: rng(45,78,3) }, { s: 'REF', v: rng(65,95,4) },
-    { s: 'VEL', v: rng(55,85,5) }, { s: 'POS', v: rng(68,95,6) },
-  ]
-  return [
-    { s: 'RIT', v: isDef ? rng(55,80,1) : rng(65,95,1) },
-    { s: 'FIN', v: isDef ? rng(40,70,2) : isMid ? rng(55,85,2) : rng(72,96,2) },
-    { s: 'PAS', v: isMid ? rng(75,95,3) : rng(58,88,3) },
-    { s: 'CON', v: rng(60,92,4) },
-    { s: 'DEF', v: isDef ? rng(72,95,5) : rng(38,72,5) },
-    { s: 'FÍS', v: rng(62,93,6) },
-  ]
-}
-
-const corStat    = (v) => v >= 85 ? '#00d48c' : v >= 72 ? '#f5c842' : '#ff6b6b'
-const mediaGeral = (jogador) => {
-  const s = gerarStats(jogador)
-  return Math.round(s.reduce((a, x) => a + x.v, 0) / s.length)
-}
+// gerarStats, corStat e mediaGeral foram movidos para FigurinhaCard.vue
 
 const carregarPaises = async () => {
   try {
@@ -185,18 +157,18 @@ const posColor = (pos) => {
 }
 
 const figurinhasRaras = [
-  { id:1,  name:'Kylian Mbappé',    country:'France',    code:'fr',     ovr:96, pos:'Atacante', price:850, rare:true  },
-  { id:2,  name:'Erling Haaland',   country:'Norway',    code:'no',     ovr:94, pos:'Atacante', price:780, rare:true  },
-  { id:3,  name:'Vinicius Jr',      country:'Brazil',    code:'br',     ovr:93, pos:'Atacante', price:720, rare:true  },
-  { id:4,  name:'Pedri',            country:'Spain',     code:'es',     ovr:91, pos:'Meia',     price:600, rare:true  },
-  { id:5,  name:'Rodri',            country:'Spain',     code:'es',     ovr:92, pos:'Meia',     price:640, rare:false },
-  { id:6,  name:'Jude Bellingham',  country:'England',   code:'gb-eng', ovr:92, pos:'Meia',     price:670, rare:true  },
-  { id:7,  name:'Bukayo Saka',      country:'England',   code:'gb-eng', ovr:89, pos:'Atacante', price:520, rare:false },
-  { id:8,  name:'Lautaro Martínez', country:'Argentina', code:'ar',     ovr:90, pos:'Atacante', price:550, rare:false },
-  { id:9,  name:'Gavi',             country:'Spain',     code:'es',     ovr:89, pos:'Meia',     price:510, rare:false },
-  { id:10, name:'Phil Foden',       country:'England',   code:'gb-eng', ovr:90, pos:'Meia',     price:560, rare:true  },
-  { id:11, name:'Federico Valverde',country:'Uruguay',   code:'uy',     ovr:88, pos:'Meia',     price:480, rare:false },
-  { id:12, name:'Raphinha',         country:'Brazil',    code:'br',     ovr:88, pos:'Atacante', price:490, rare:false },
+  { id:1,  name:'Kylian Mbappé',     country:'France',    code:'fr',     ovr:96, pos:'Atacante', price:850, rare:true  },
+  { id:2,  name:'Erling Haaland',    country:'Norway',    code:'no',     ovr:94, pos:'Atacante', price:780, rare:true  },
+  { id:3,  name:'Vinicius Jr',       country:'Brazil',    code:'br',     ovr:93, pos:'Atacante', price:720, rare:true  },
+  { id:4,  name:'Pedri',             country:'Spain',     code:'es',     ovr:91, pos:'Meia',     price:600, rare:true  },
+  { id:5,  name:'Rodri',             country:'Spain',     code:'es',     ovr:92, pos:'Meia',     price:640, rare:false },
+  { id:6,  name:'Jude Bellingham',   country:'England',   code:'gb-eng', ovr:92, pos:'Meia',     price:670, rare:true  },
+  { id:7,  name:'Bukayo Saka',       country:'England',   code:'gb-eng', ovr:89, pos:'Atacante', price:520, rare:false },
+  { id:8,  name:'Lautaro Martínez',  country:'Argentina', code:'ar',     ovr:90, pos:'Atacante', price:550, rare:false },
+  { id:9,  name:'Gavi',              country:'Spain',     code:'es',     ovr:89, pos:'Meia',     price:510, rare:false },
+  { id:10, name:'Phil Foden',        country:'England',   code:'gb-eng', ovr:90, pos:'Meia',     price:560, rare:true  },
+  { id:11, name:'Federico Valverde', country:'Uruguay',   code:'uy',     ovr:88, pos:'Meia',     price:480, rare:false },
+  { id:12, name:'Raphinha',          country:'Brazil',    code:'br',     ovr:88, pos:'Atacante', price:490, rare:false },
 ]
 
 const filteredMercado = computed(() => {
@@ -606,42 +578,17 @@ const colPct     = computed(() => Math.round((statsColecao.value.coletadas / sta
             <span class="asb-page">Página {{ paginaAtual }} de {{ totalPaginas }}</span>
           </div>
 
-          <!-- STICKERS GRID -->
+          <!-- STICKERS GRID — renderizado via componente FigurinhaCard -->
           <div class="stickers-grid">
-            <div class="sticker" v-for="(jogador,index) in jogadoresPagina" :key="jogador.id" :style="{'--i':index,'--media':mediaGeral(jogador)}">
-              <div class="stk-num">{{ (paginaAtual-1)*porPagina+index+1 }}</div>
-              <div class="stk-glare"></div>
-              <div class="stk-head">
-                <div class="stk-head-l">
-                  <img v-if="bandeiraSelecionada" :src="bandeiraSelecionada" class="stk-flag" alt="País"/>
-                  <span class="stk-country">{{ paisSelecionado.slice(0,3).toUpperCase() }}</span>
-                </div>
-                <span class="stk-ball">⚽</span>
-              </div>
-              <div class="stk-photo-wrap">
-                <div class="stk-photo-bg"></div>
-                <div class="stk-photo-fallback">{{ jogador.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() }}</div>
-                <img :src="jogador.photo" :alt="jogador.name" class="stk-photo" @error="e=>{e.target.style.display='none'}"/>
-                <div class="stk-photo-grad"></div>
-                <div class="stk-overall"><span class="so-val">{{ mediaGeral(jogador) }}</span><span class="so-lbl">OVR</span></div>
-              </div>
-              <div class="stk-identity">
-                <div class="stk-name">{{ jogador.name }}</div>
-                <div class="stk-pos">{{ jogador.position || 'Jogador' }}</div>
-              </div>
-              <div class="stk-attrs">
-                <div class="attr" v-for="st in gerarStats(jogador)" :key="st.s">
-                  <span class="attr-s">{{ st.s }}</span>
-                  <div class="attr-bar-bg"><div class="attr-bar-fill" :style="{width:st.v+'%',background:corStat(st.v)}"></div></div>
-                  <span class="attr-v" :style="{color:corStat(st.v)}">{{ st.v }}</span>
-                </div>
-              </div>
-              <div class="stk-foot">
-                <span>FIFA</span><span class="stk-foot-dot"></span>
-                <span>COPA 2026</span><span class="stk-foot-dot"></span>
-                <span>OFFICIAL</span>
-              </div>
-            </div>
+            <FigurinhaCard
+              v-for="(jogador, index) in jogadoresPagina"
+              :key="jogador.id"
+              :jogador="jogador"
+              :numero="(paginaAtual - 1) * porPagina + index + 1"
+              :indice="index"
+              :bandeiraSelecionada="bandeiraSelecionada"
+              :paisSelecionado="paisSelecionado"
+            />
           </div>
 
           <!-- PAGINAÇÃO -->
@@ -675,28 +622,48 @@ const colPct     = computed(() => Math.round((statsColecao.value.coletadas / sta
 
         <!-- Cards de figurinhas do mercado -->
         <div class="mkt-grid">
-          <div class="mkt-card" v-for="(f,i) in filteredMercado" :key="f.id" :style="{'--i':i,'--rare':f.rare?1:0}">
+          <div class="mkt-card" v-for="(f,i) in filteredMercado" :key="f.id"
+            :style="{'--i':i,'--c1':posColor(f.pos)[0],'--c2':posColor(f.pos)[1]}"
+            :class="{rare: f.rare}">
+
+            <!-- Badge rara -->
             <div v-if="f.rare" class="mkt-rare-badge">⭐ RARA</div>
-            <div class="mkt-card-glow" v-if="f.rare"></div>
-            <div class="mkt-photo-wrap">
-              <div class="mkt-avatar" :style="{'background':'linear-gradient(135deg,'+posColor(f.pos)[0]+','+posColor(f.pos)[1]+')'}">
-                <span class="mkt-avatar-initials">{{ getInitials(f.name) }}</span>
-                <img :src="`https://flagcdn.com/w40/${f.code}.png`" class="mkt-avatar-flag" :alt="f.country"/>
+
+            <!-- Área visual superior: silhueta FIFA-style -->
+            <div class="mkt-visual">
+              <!-- fundo degradê por posição -->
+              <div class="mkt-visual-bg"></div>
+              <!-- hexágonos decorativos de fundo -->
+              <div class="mkt-hex-grid">
+                <span v-for="n in 9" :key="n"></span>
               </div>
-              <div class="mkt-photo-overlay"></div>
-              <div class="mkt-ovr">
-                <span>{{ f.ovr }}</span>
-                <small>OVR</small>
+              <!-- OVR no canto superior esquerdo -->
+              <div class="mkt-ovr-block">
+                <span class="mkt-ovr-val">{{ f.ovr }}</span>
+                <span class="mkt-ovr-lbl">OVR</span>
+                <img :src="`https://flagcdn.com/w40/${f.code}.png`" class="mkt-ovr-flag" :alt="f.country"/>
               </div>
+              <!-- Silhueta / iniciais grandes -->
+              <div class="mkt-player-art">
+                <div class="mkt-player-shadow"></div>
+                <div class="mkt-player-initials">{{ getInitials(f.name) }}</div>
+                <div class="mkt-player-shirt">{{ f.id }}</div>
+              </div>
+              <!-- brilho dourado se rara -->
+              <div v-if="f.rare" class="mkt-rare-shine"></div>
             </div>
+
+            <!-- Informações -->
             <div class="mkt-info">
-              <div class="mkt-flag-row">
+              <div class="mkt-name">{{ f.name }}</div>
+              <div class="mkt-detail-row">
                 <img :src="`https://flagcdn.com/w40/${f.code}.png`" :alt="f.country" class="mkt-flag"/>
                 <span class="mkt-country">{{ f.country }}</span>
+                <span class="mkt-pos-tag">{{ f.pos }}</span>
               </div>
-              <div class="mkt-name">{{ f.name }}</div>
-              <div class="mkt-pos-tag">{{ f.pos }}</div>
             </div>
+
+            <!-- Rodapé: preço + botão -->
             <div class="mkt-footer">
               <div class="mkt-price">
                 <span class="mkt-coin">🪙</span>
@@ -1398,42 +1365,117 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
 .mkt-filter-btn:hover  { border-color:var(--bdr2); color:var(--text); }
 .mkt-filter-btn.active { background:linear-gradient(135deg,var(--blue),var(--blue-lt)); border-color:var(--blue-lt); color:#fff; box-shadow:0 4px 16px rgba(0,61,165,.35); }
 
-.mkt-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:18px; }
+.mkt-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:20px; }
+
+/* ── Card base ── */
 .mkt-card {
-  position:relative; background:var(--bg3); border-radius:14px; overflow:hidden;
-  border:1px solid var(--border); display:flex; flex-direction:column;
+  position:relative; border-radius:16px; overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--bg3);
+  display:flex; flex-direction:column;
   animation:stk-in .4s cubic-bezier(.34,1.56,.64,1) both;
   animation-delay:calc(var(--i)*.06s);
-  transition:transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s, border-color .28s;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s, border-color .3s;
+  cursor:pointer;
 }
 .mkt-card:hover {
-  transform:translateY(-7px) scale(1.03);
-  box-shadow:0 20px 50px rgba(0,0,0,.7);
-  border-color:rgba(37,99,235,.4);
-  z-index:3;
+  transform:translateY(-10px) scale(1.03);
+  box-shadow:0 28px 60px rgba(0,0,0,.75), 0 0 0 1px var(--c1, rgba(37,99,235,.4));
+  border-color:var(--c1, rgba(37,99,235,.4));
+  z-index:4;
 }
-.mkt-card[style*="--rare: 1"] { border-color:rgba(245,200,66,.25); }
-.mkt-card[style*="--rare: 1"]:hover { border-color:rgba(245,200,66,.6); box-shadow:0 20px 50px rgba(0,0,0,.7), 0 0 40px rgba(245,200,66,.15); }
-.mkt-rare-badge { position:absolute; top:10px; right:10px; z-index:10; background:linear-gradient(135deg,#b8760a,var(--gold)); color:#000; font-size:9px; font-weight:900; padding:4px 10px; border-radius:20px; letter-spacing:.5px; box-shadow:0 2px 10px rgba(245,200,66,.4); }
-.mkt-card-glow { position:absolute; inset:0; background:radial-gradient(ellipse at top,rgba(245,200,66,.08),transparent 60%); pointer-events:none; }
-.mkt-photo-wrap { position:relative; aspect-ratio:1; overflow:hidden; background:linear-gradient(180deg,var(--bg4),var(--bg2)); }
-.mkt-photo { width:100%; height:100%; object-fit:cover; transition:transform .35s cubic-bezier(.34,1.56,.64,1); }
-.mkt-card:hover .mkt-photo { transform:scale(1.08); }
-.mkt-photo-overlay { position:absolute; bottom:0; left:0; right:0; height:50%; background:linear-gradient(transparent,var(--bg3)); }
-/* Avatar fallback para o mercado */
-.mkt-avatar {
-  width:100%; height:100%; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:8px;
-  position:relative;
+.mkt-card.rare { border-color:rgba(245,200,66,.3); }
+.mkt-card.rare:hover { border-color:rgba(245,200,66,.7); box-shadow:0 28px 60px rgba(0,0,0,.75), 0 0 50px rgba(245,200,66,.2); }
+
+/* Badge rara */
+.mkt-rare-badge {
+  position:absolute; top:12px; right:12px; z-index:20;
+  background:linear-gradient(135deg,#9a6000,var(--gold));
+  color:#000; font-size:9px; font-weight:900; letter-spacing:.5px;
+  padding:4px 12px; border-radius:20px;
+  box-shadow:0 2px 12px rgba(245,200,66,.5);
 }
-.mkt-avatar-initials {
-  font-family:'Bebas Neue',sans-serif; font-size:52px; color:rgba(255,255,255,.9);
-  line-height:1; text-shadow:0 2px 16px rgba(0,0,0,.5);
+
+/* ── Área visual superior ── */
+.mkt-visual {
+  position:relative; width:100%; aspect-ratio:4/3;
+  overflow:hidden;
+  background:linear-gradient(160deg, var(--c1, #003DA5) 0%, var(--c2, #001840) 100%);
 }
-.mkt-avatar-flag {
-  width:40px; height:27px; object-fit:cover; border-radius:5px;
-  border:2px solid rgba(255,255,255,.3); box-shadow:0 2px 10px rgba(0,0,0,.4);
+.mkt-visual-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 110%, rgba(0,0,0,.6), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(255,255,255,.08), transparent);
 }
+
+/* hexágonos decorativos */
+.mkt-hex-grid {
+  position:absolute; inset:0;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+  opacity:.07; pointer-events:none; padding:6px;
+}
+.mkt-hex-grid span {
+  background:rgba(255,255,255,.5);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+}
+
+/* OVR + bandeira no canto */
+.mkt-ovr-block {
+  position:absolute; top:12px; left:12px; z-index:10;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:10px; padding:6px 10px; min-width:44px;
+}
+.mkt-ovr-val { font-family:'Bebas Neue',sans-serif; font-size:26px; color:#fff; line-height:1; }
+.mkt-ovr-lbl { font-size:7px; color:var(--gold); font-weight:900; letter-spacing:1px; line-height:1; }
+.mkt-ovr-flag { width:28px; height:19px; object-fit:cover; border-radius:3px; margin-top:3px; border:1px solid rgba(255,255,255,.2); }
+
+/* Silhueta / arte do jogador */
+.mkt-player-art {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:0;
+}
+.mkt-player-shadow {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:70%; height:20%;
+  background:radial-gradient(ellipse,rgba(0,0,0,.5) 0%,transparent 70%);
+}
+.mkt-player-initials {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:72px; letter-spacing:6px;
+  color:rgba(255,255,255,.18);
+  line-height:1; user-select:none;
+  text-shadow:0 4px 32px rgba(0,0,0,.4);
+  position:relative; z-index:2;
+}
+.mkt-player-shirt {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px; color:rgba(255,255,255,.5);
+  letter-spacing:2px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:6px; padding:2px 12px;
+  position:relative; z-index:2;
+}
+
+/* Brilho dourado nas raras */
+.mkt-rare-shine {
+  position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(135deg,
+    rgba(245,200,66,.18) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(245,200,66,.1) 100%);
+  animation:shine-pulse 3s ease-in-out infinite;
+}
+@keyframes shine-pulse {
+  0%,100%{ opacity:.6; }
+  50%    { opacity:1; }
+}
+
 /* Photo fallback for album stickers */
 .stk-photo-fallback {
   position:absolute; inset:0; z-index:1;
@@ -1441,21 +1483,37 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
   font-family:'Bebas Neue',sans-serif; font-size:38px;
   color:rgba(255,255,255,.25); letter-spacing:2px;
 }
-.mkt-ovr { position:absolute; bottom:10px; left:10px; display:flex; flex-direction:column; align-items:center; background:rgba(0,0,0,.8); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:4px 10px; }
-.mkt-ovr span { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#fff; line-height:1; }
-.mkt-ovr small { font-size:7px; color:var(--gold); font-weight:800; letter-spacing:.5px; }
-.mkt-info { padding:12px 14px 8px; display:flex; flex-direction:column; gap:6px; }
-.mkt-flag-row { display:flex; align-items:center; gap:6px; }
-.mkt-flag    { width:24px; height:16px; object-fit:cover; border-radius:3px; box-shadow:var(--sh-sm); }
-.mkt-country { font-size:10px; color:var(--text-mid); font-weight:700; }
-.mkt-name    { font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mkt-pos-tag { display:inline-block; font-size:9px; font-weight:800; letter-spacing:.5px; color:#fff; background:linear-gradient(90deg,var(--blue),var(--blue-lt)); padding:3px 10px; border-radius:5px; width:fit-content; }
+
+/* ── Info section ── */
+.mkt-info { padding:12px 14px 8px; display:flex; flex-direction:column; gap:7px; }
+.mkt-name {
+  font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700;
+  color:#fff; text-transform:uppercase; letter-spacing:.3px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.mkt-detail-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.mkt-flag    { width:22px; height:15px; object-fit:cover; border-radius:3px; box-shadow:var(--sh-sm); flex-shrink:0; }
+.mkt-country { font-size:11px; color:var(--text-mid); font-weight:700; }
+.mkt-pos-tag {
+  margin-left:auto;
+  font-size:9px; font-weight:800; letter-spacing:.5px; color:#fff;
+  background:linear-gradient(90deg, var(--c1, var(--blue)), var(--c2, var(--blue-lt)));
+  padding:3px 10px; border-radius:20px;
+}
+
+/* ── Footer ── */
 .mkt-footer { display:flex; align-items:center; justify-content:space-between; padding:10px 14px 14px; border-top:1px solid var(--border); margin-top:auto; }
 .mkt-price  { display:flex; align-items:center; gap:5px; }
 .mkt-coin   { font-size:16px; }
-.mkt-price-val { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--gold); letter-spacing:1px; }
-.mkt-buy-btn { padding:7px 16px; border-radius:8px; border:none; background:linear-gradient(135deg,var(--blue),var(--blue-lt)); color:#fff; font-family:'Syne',sans-serif; font-size:12px; font-weight:800; cursor:pointer; transition:transform .2s, box-shadow .2s; }
-.mkt-buy-btn:hover { transform:scale(1.05); box-shadow:0 4px 16px rgba(0,61,165,.45); }
+.mkt-price-val { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--gold); letter-spacing:1px; }
+.mkt-buy-btn {
+  padding:8px 18px; border-radius:8px; border:none;
+  background:linear-gradient(135deg, var(--c1, var(--blue)), var(--c2, var(--blue-lt)));
+  color:#fff; font-family:'Syne',sans-serif; font-size:12px; font-weight:800;
+  cursor:pointer; transition:transform .2s, box-shadow .2s;
+  box-shadow:0 4px 14px rgba(0,0,0,.3);
+}
+.mkt-buy-btn:hover { transform:scale(1.07); box-shadow:0 6px 20px rgba(0,0,0,.4); }
 
 .mkt-section { background:var(--bg3); border:1px solid var(--border); border-radius:16px; padding:26px 32px; }
 .mkt-section-header { display:flex; align-items:baseline; gap:14px; margin-bottom:18px; }
