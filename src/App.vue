@@ -173,19 +173,30 @@ onMounted(carregarPaises)
 ══════════════════════════════════════════ */
 const mercadoFiltro = ref('todos')
 
+// Iniciais para avatar fallback do mercado
+const getInitials = (name) => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()
+
+// Cores por posição para avatar fallback
+const posColor = (pos) => {
+  if (pos === 'Atacante') return ['#C8102E','#9a0c23']
+  if (pos === 'Meia')     return ['#003DA5','#002070']
+  if (pos === 'Defensor') return ['#00a650','#007a3d']
+  return ['#554400','#332200']
+}
+
 const figurinhasRaras = [
-  { id:1,  name:'Kylian Mbappé',    country:'France',    code:'fr',  ovr:96, pos:'Atacante',    price:850,  rare:true,  photo:'https://media.api-sports.io/football/players/278.png'  },
-  { id:2,  name:'Erling Haaland',   country:'Norway',    code:'no',  ovr:94, pos:'Atacante',    price:780,  rare:true,  photo:'https://media.api-sports.io/football/players/1100.png' },
-  { id:3,  name:'Vinicius Jr',      country:'Brazil',    code:'br',  ovr:93, pos:'Atacante',    price:720,  rare:true,  photo:'https://media.api-sports.io/football/players/1082.png' },
-  { id:4,  name:'Pedri',            country:'Spain',     code:'es',  ovr:91, pos:'Meia',        price:600,  rare:true,  photo:'https://media.api-sports.io/football/players/2295.png' },
-  { id:5,  name:'Rodri',            country:'Spain',     code:'es',  ovr:92, pos:'Meia',        price:640,  rare:false, photo:'https://media.api-sports.io/football/players/2305.png' },
-  { id:6,  name:'Jude Bellingham',  country:'England',   code:'gb-eng', ovr:92, pos:'Meia',     price:670,  rare:true,  photo:'https://media.api-sports.io/football/players/1485.png' },
-  { id:7,  name:'Bukayo Saka',      country:'England',   code:'gb-eng', ovr:89, pos:'Atacante', price:520,  rare:false, photo:'https://media.api-sports.io/football/players/1232.png' },
-  { id:8,  name:'Lautaro Martínez', country:'Argentina', code:'ar',  ovr:90, pos:'Atacante',    price:550,  rare:false, photo:'https://media.api-sports.io/football/players/762.png'  },
-  { id:9,  name:'Gavi',             country:'Spain',     code:'es',  ovr:89, pos:'Meia',        price:510,  rare:false, photo:'https://media.api-sports.io/football/players/2296.png' },
-  { id:10, name:'Phil Foden',       country:'England',   code:'gb-eng', ovr:90, pos:'Meia',     price:560,  rare:true,  photo:'https://media.api-sports.io/football/players/627.png'  },
-  { id:11, name:'Federico Valverde',country:'Uruguay',   code:'uy',  ovr:88, pos:'Meia',        price:480,  rare:false, photo:'https://media.api-sports.io/football/players/2296.png' },
-  { id:12, name:'Raphinha',         country:'Brazil',    code:'br',  ovr:88, pos:'Atacante',    price:490,  rare:false, photo:'https://media.api-sports.io/football/players/874.png'  },
+  { id:1,  name:'Kylian Mbappé',    country:'France',    code:'fr',     ovr:96, pos:'Atacante', price:850, rare:true  },
+  { id:2,  name:'Erling Haaland',   country:'Norway',    code:'no',     ovr:94, pos:'Atacante', price:780, rare:true  },
+  { id:3,  name:'Vinicius Jr',      country:'Brazil',    code:'br',     ovr:93, pos:'Atacante', price:720, rare:true  },
+  { id:4,  name:'Pedri',            country:'Spain',     code:'es',     ovr:91, pos:'Meia',     price:600, rare:true  },
+  { id:5,  name:'Rodri',            country:'Spain',     code:'es',     ovr:92, pos:'Meia',     price:640, rare:false },
+  { id:6,  name:'Jude Bellingham',  country:'England',   code:'gb-eng', ovr:92, pos:'Meia',     price:670, rare:true  },
+  { id:7,  name:'Bukayo Saka',      country:'England',   code:'gb-eng', ovr:89, pos:'Atacante', price:520, rare:false },
+  { id:8,  name:'Lautaro Martínez', country:'Argentina', code:'ar',     ovr:90, pos:'Atacante', price:550, rare:false },
+  { id:9,  name:'Gavi',             country:'Spain',     code:'es',     ovr:89, pos:'Meia',     price:510, rare:false },
+  { id:10, name:'Phil Foden',       country:'England',   code:'gb-eng', ovr:90, pos:'Meia',     price:560, rare:true  },
+  { id:11, name:'Federico Valverde',country:'Uruguay',   code:'uy',     ovr:88, pos:'Meia',     price:480, rare:false },
+  { id:12, name:'Raphinha',         country:'Brazil',    code:'br',     ovr:88, pos:'Atacante', price:490, rare:false },
 ]
 
 const filteredMercado = computed(() => {
@@ -609,7 +620,8 @@ const colPct     = computed(() => Math.round((statsColecao.value.coletadas / sta
               </div>
               <div class="stk-photo-wrap">
                 <div class="stk-photo-bg"></div>
-                <img :src="jogador.photo" :alt="jogador.name" class="stk-photo" @error="e=>e.target.style.opacity='0'"/>
+                <div class="stk-photo-fallback">{{ jogador.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() }}</div>
+                <img :src="jogador.photo" :alt="jogador.name" class="stk-photo" @error="e=>{e.target.style.display='none'}"/>
                 <div class="stk-photo-grad"></div>
                 <div class="stk-overall"><span class="so-val">{{ mediaGeral(jogador) }}</span><span class="so-lbl">OVR</span></div>
               </div>
@@ -667,7 +679,10 @@ const colPct     = computed(() => Math.round((statsColecao.value.coletadas / sta
             <div v-if="f.rare" class="mkt-rare-badge">⭐ RARA</div>
             <div class="mkt-card-glow" v-if="f.rare"></div>
             <div class="mkt-photo-wrap">
-              <img :src="f.photo" :alt="f.name" class="mkt-photo" @error="e=>e.target.style.opacity='0'"/>
+              <div class="mkt-avatar" :style="{'background':'linear-gradient(135deg,'+posColor(f.pos)[0]+','+posColor(f.pos)[1]+')'}">
+                <span class="mkt-avatar-initials">{{ getInitials(f.name) }}</span>
+                <img :src="`https://flagcdn.com/w40/${f.code}.png`" class="mkt-avatar-flag" :alt="f.country"/>
+              </div>
               <div class="mkt-photo-overlay"></div>
               <div class="mkt-ovr">
                 <span>{{ f.ovr }}</span>
@@ -1318,7 +1333,7 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
 .asb-page  { font-size:13px; color:var(--text-mid); font-weight:600; }
 
 /* ══════════ STICKERS ══════════ */
-.stickers-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; }
+.stickers-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; }
 .sticker {
   position:relative; background:var(--bg3); border-radius:12px; overflow:hidden;
   border:1px solid var(--border); box-shadow:var(--sh-md); cursor:pointer;
@@ -1341,7 +1356,7 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
 .stk-flag   { width:22px; height:15px; object-fit:cover; border-radius:2px; box-shadow:0 1px 4px rgba(0,0,0,.5); }
 .stk-country{ font-size:8px; font-weight:800; letter-spacing:.5px; color:rgba(255,255,255,.7); }
 .stk-ball   { font-size:12px; opacity:.75; }
-.stk-photo-wrap { position:relative; width:100%; aspect-ratio:1; overflow:hidden; background:linear-gradient(180deg,var(--bg4) 0%,var(--bg2) 100%); flex-shrink:0; }
+.stk-photo-wrap { position:relative; width:100%; aspect-ratio:1; overflow:hidden; background:linear-gradient(180deg,#0d1628 0%,#080c14 100%); flex-shrink:0; }
 .stk-photo-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(0,61,165,.22),transparent 70%); }
 .stk-photo { width:100%; height:100%; object-fit:cover; display:block; position:relative; z-index:1; transition:transform .35s cubic-bezier(.34,1.56,.64,1); }
 .sticker:hover .stk-photo { transform:scale(1.1); }
@@ -1405,6 +1420,27 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
 .mkt-photo { width:100%; height:100%; object-fit:cover; transition:transform .35s cubic-bezier(.34,1.56,.64,1); }
 .mkt-card:hover .mkt-photo { transform:scale(1.08); }
 .mkt-photo-overlay { position:absolute; bottom:0; left:0; right:0; height:50%; background:linear-gradient(transparent,var(--bg3)); }
+/* Avatar fallback para o mercado */
+.mkt-avatar {
+  width:100%; height:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px;
+  position:relative;
+}
+.mkt-avatar-initials {
+  font-family:'Bebas Neue',sans-serif; font-size:52px; color:rgba(255,255,255,.9);
+  line-height:1; text-shadow:0 2px 16px rgba(0,0,0,.5);
+}
+.mkt-avatar-flag {
+  width:40px; height:27px; object-fit:cover; border-radius:5px;
+  border:2px solid rgba(255,255,255,.3); box-shadow:0 2px 10px rgba(0,0,0,.4);
+}
+/* Photo fallback for album stickers */
+.stk-photo-fallback {
+  position:absolute; inset:0; z-index:1;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif; font-size:38px;
+  color:rgba(255,255,255,.25); letter-spacing:2px;
+}
 .mkt-ovr { position:absolute; bottom:10px; left:10px; display:flex; flex-direction:column; align-items:center; background:rgba(0,0,0,.8); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:4px 10px; }
 .mkt-ovr span { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#fff; line-height:1; }
 .mkt-ovr small { font-size:7px; color:var(--gold); font-weight:800; letter-spacing:.5px; }
@@ -1514,21 +1550,21 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
 .prf-conquistas { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
 @media (min-width:1200px) { .prf-conquistas { grid-template-columns:repeat(3,1fr); } }
 .prf-conquista {
-  display:flex; align-items:center; gap:14px;
+  display:flex; align-items:center; gap:12px;
   background:var(--bg4); border:1px solid var(--border);
-  border-radius:12px; padding:16px 18px;
+  border-radius:12px; padding:14px 16px;
   animation:stk-in .4s both; animation-delay:calc(var(--i)*.06s);
   transition:border-color .2s;
-  opacity:.5;
+  opacity:.5; min-width:0;
 }
 .prf-conquista.unlocked { opacity:1; border-color:rgba(0,166,80,.25); background:rgba(0,166,80,.04); }
 .prf-conquista.unlocked:hover { border-color:rgba(0,166,80,.5); }
-.pc-icon  { font-size:28px; flex-shrink:0; }
+.pc-icon  { font-size:26px; flex-shrink:0; width:32px; text-align:center; }
 .pc-icon.locked { filter:grayscale(1); opacity:.4; }
-.pc-body  { display:flex; flex-direction:column; gap:3px; flex:1; }
-.pc-nome  { font-size:13px; font-weight:700; color:#fff; }
-.pc-desc  { font-size:11px; color:var(--text-mid); }
-.pc-badge { font-size:10px; font-weight:700; color:var(--green); white-space:nowrap; background:rgba(0,166,80,.1); border:1px solid rgba(0,166,80,.25); padding:3px 10px; border-radius:20px; }
+.pc-body  { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; overflow:hidden; }
+.pc-nome  { font-size:13px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pc-desc  { font-size:11px; color:var(--text-mid); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pc-badge { font-size:10px; font-weight:700; color:var(--green); white-space:nowrap; flex-shrink:0; background:rgba(0,166,80,.1); border:1px solid rgba(0,166,80,.25); padding:3px 10px; border-radius:20px; }
 
 /* ══════════ TRANSITIONS ══════════ */
 .auth-fade-enter-active, .auth-fade-leave-active { transition:opacity .4s ease; }
@@ -1547,7 +1583,7 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
 
 /* ══════════ RESPONSIVIDADE ══════════ */
 @media (max-width:1279px) {
-  .stickers-grid    { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); }
+  .stickers-grid    { grid-template-columns:repeat(5,1fr); }
   .ef-flags         { grid-template-columns:repeat(4,1fr); }
   .empty-stats      { grid-template-columns:repeat(2,1fr); }
   .ht-steps         { grid-template-columns:repeat(2,1fr); }
@@ -1573,7 +1609,7 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
   .sb-divider { display:none; }
   .album,.empty-wrap,.mercado-wrap,.perfil-wrap { padding:20px 24px 36px; }
   .hero-inner { padding:28px 24px 22px; }
-  .stickers-grid { gap:12px; }
+  .stickers-grid { gap:12px; grid-template-columns:repeat(4,1fr); }
   .mkt-grid  { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); }
 }
 @media (max-width:767px) {
@@ -1601,6 +1637,7 @@ html, body { min-height:100vh; background:var(--bg); font-family:'Syne',sans-ser
   .ah-ring-wrap,.ah-mini-stats { display:none; }
   .ah-name       { font-size:34px; }
   .stickers-grid { grid-template-columns:repeat(3,1fr); gap:10px; }
+  .mkt-grid  { grid-template-columns:repeat(3,1fr); gap:12px; }
   .pagination    { padding:12px 14px; }
   .pg-dots       { display:none; }
   .mkt-grid      { grid-template-columns:repeat(2,1fr); gap:12px; }
