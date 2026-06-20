@@ -5,7 +5,7 @@ import FigurinhaCard from './components/FigurinhaCard.vue'
 /* ══════════════════════════════════════════
    CONFIG
 ══════════════════════════════════════════ */
-const token = '5dc0faddd67d4bd655e074569c6111e8'
+const token = 'b716a8a64e07f33e8a6bbd72f7245d94'
 
 /* ══════════════════════════════════════════
    AUTH STATE
