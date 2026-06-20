@@ -406,6 +406,7 @@ export default {
 
   /* Linha decorativa na cor primária no topo do rodapé */
   border-top: 3px solid var(--cor-primaria, #1a1a2e);
+<<<<<<< HEAD
 }
 
 .escudo-wrapper {
@@ -507,3 +508,106 @@ export default {
   .escudo           { width: 24px; height: 24px; }
 }
 </style>
+=======
+}
+
+.escudo-wrapper {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.escudo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.info-jogador {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.nome-jogador {
+  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #111111;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.posicao-jogador {
+  font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: #666666;
+  text-transform: uppercase;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* ─── Borda brilhante temática (detalhe foil interno) ───── */
+.borda-tema {
+  position: absolute;
+  inset: 2px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  z-index: 4;
+  /* Brilho sutil na borda ao hover */
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow 0.28s ease;
+}
+
+.holo-ativo .borda-tema {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+/* ─── Responsividade ────────────────────────────────────── */
+
+/* Telas médias: card um pouco maior */
+@media (min-width: 480px) {
+  .figurinha-card {
+    width: 158px;
+  }
+
+  .numero-figurinha { font-size: 16px; }
+  .bandeira         { width: 26px; height: 17px; }
+  .card-footer      { height: 48px; }
+  .nome-jogador     { font-size: 12px; }
+  .posicao-jogador  { font-size: 9px; }
+  .escudo           { width: 22px; height: 22px; }
+}
+
+/* Telas grandes: card padrão */
+@media (min-width: 768px) {
+  .figurinha-card {
+    width: 175px;
+  }
+
+  .card-header      { height: 34px; padding: 0 10px; }
+  .numero-figurinha { font-size: 18px; }
+  .bandeira         { width: 28px; height: 18px; }
+  .card-footer      { height: 52px; padding: 0 10px; gap: 8px; }
+  .nome-jogador     { font-size: 13px; }
+  .posicao-jogador  { font-size: 10px; }
+  .escudo           { width: 24px; height: 24px; }
+}
+</style>
+>>>>>>> 082b6e73d5e275b9c21398760edfc86976130b78
