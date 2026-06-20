@@ -586,7 +586,7 @@ const colPct     = computed(() => Math.round((statsColecao.value.coletadas / sta
               :jogador="jogador"
               :numero="(paginaAtual - 1) * porPagina + index + 1"
               :indice="index"
-              :bandeiraSelecionada="bandeiraSelecionada"
+              :bandeira="bandeiraSelecionada"
               :paisSelecionado="paisSelecionado"
             />
           </div>

@@ -13,26 +13,31 @@
     <div class="card-header">
       <span class="numero-figurinha">{{ numero }}</span>
       <img
+        v-if="bandeira"
         class="bandeira"
         :src="bandeira"
         :alt="'Bandeira de ' + (jogador.pais || 'seleção')"
         loading="lazy"
+        @error="onBandeiraErro"
       />
+      <!-- Fallback se a bandeira não vier ou quebrar -->
+      <span v-else class="bandeira-fallback" aria-hidden="true">🏳️</span>
     </div>
 
     <!-- Foto do jogador -->
     <div class="foto-container">
       <img
+        v-if="fotoUrl && !fotoQuebrada"
         class="foto-jogador"
-        :src="jogador.foto || jogador.photo || jogador.strCutout || ''"
-        :alt="jogador.nome || jogador.strPlayer || 'Jogador'"
+        :src="fotoUrl"
+        :alt="jogador.nome || jogador.strPlayer || jogador.name || 'Jogador'"
         loading="lazy"
         @error="onFotoErro"
       />
-      <!-- Fallback silhueta SVG se foto quebrar -->
+      <!-- Fallback silhueta SVG quando não há foto ou ela falhou -->
       <svg
         class="foto-fallback"
-        v-if="fotoQuebrada"
+        v-else
         viewBox="0 0 80 100"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -81,6 +86,16 @@
  *   jogador.posicao | jogador.strPosition | jogador.position
  *   jogador.pais | jogador.strNationality | jogador.nationality
  *   jogador.escudo | jogador.strClubBadge  (opcional)
+ *
+ * IMPORTANTE — uso correto no componente pai (App.vue):
+ *   <FigurinhaCard
+ *     :jogador="jogador"
+ *     :numero="numero"
+ *     :bandeira="bandeiraSelecionada"
+ *   />
+ *   A prop precisa se chamar exatamente "bandeira" no binding do pai
+ *   (:bandeira="..."), e não ":bandeiraSelecionada=", senão o Vue não
+ *   reconhece o binding e a prop chega vazia.
  */
 
 // Mapeamento de cores por seleção — adicione mais conforme necessário
@@ -155,6 +170,7 @@ export default {
       holografico: false,
       fotoQuebrada: false,
       escudoQuebrado: false,
+      bandeiraQuebrada: false,
     };
   },
 
@@ -175,6 +191,26 @@ export default {
 
     corSecundaria() {
       return (COR_SELECAO[this.paisNorm] || { secundaria: '#e94560' }).secundaria;
+    },
+
+    /**
+     * URL da foto do jogador.
+     * Verifica todos os campos possíveis e trata strings vazias/só espaço
+     * como "sem foto" — isso garante que o fallback SVG apareça mesmo
+     * quando a API retorna "" em vez de null/undefined.
+     */
+    fotoUrl() {
+      const candidatos = [
+        this.jogador?.foto,
+        this.jogador?.photo,
+        this.jogador?.strCutout,
+        this.jogador?.strThumb,
+        this.jogador?.strRender,
+      ];
+      const valido = candidatos.find(
+        (c) => typeof c === 'string' && c.trim().length > 0
+      );
+      return valido || '';
     },
 
     nomeAbreviado() {
@@ -210,22 +246,27 @@ export default {
     },
   },
 
+  watch: {
+    // Se o jogador mudar (ex: troca de página/seleção), reseta o estado
+    // de erro para que o fallback seja reavaliado com os novos dados.
+    jogador() {
+      this.fotoQuebrada = false;
+      this.escudoQuebrado = false;
+      this.bandeiraQuebrada = false;
+    },
+  },
+
   methods: {
-    onFotoErro(e) {
-      // Tenta campo alternativo antes de mostrar fallback SVG
-      const alternativa =
-        this.jogador?.strThumb ||
-        this.jogador?.strRender ||
-        '';
-      if (alternativa && e.target.src !== alternativa) {
-        e.target.src = alternativa;
-      } else {
-        this.fotoQuebrada = true;
-        e.target.style.display = 'none';
-      }
+    onFotoErro() {
+      // A URL existe mas falhou ao carregar (404, CORS, etc) →
+      // mostra o fallback SVG.
+      this.fotoQuebrada = true;
     },
     onEscudoErro() {
       this.escudoQuebrado = true;
+    },
+    onBandeiraErro() {
+      this.bandeiraQuebrada = true;
     },
   },
 };
@@ -346,6 +387,19 @@ export default {
   flex-shrink: 0;
 }
 
+/* Fallback de bandeira (emoji) quando a URL não vem ou quebra */
+.bandeira-fallback {
+  width: 24px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
 /* ─── Container da foto ─────────────────────────────────── */
 .foto-container {
   flex: 1;
@@ -406,7 +460,7 @@ export default {
 
   /* Linha decorativa na cor primária no topo do rodapé */
   border-top: 3px solid var(--cor-primaria, #1a1a2e);
-<<<<<<< HEAD
+
 }
 
 .escudo-wrapper {
@@ -487,6 +541,7 @@ export default {
 
   .numero-figurinha { font-size: 16px; }
   .bandeira         { width: 26px; height: 17px; }
+  .bandeira-fallback { width: 26px; height: 17px; font-size: 14px; }
   .card-footer      { height: 48px; }
   .nome-jogador     { font-size: 12px; }
   .posicao-jogador  { font-size: 9px; }
@@ -502,112 +557,10 @@ export default {
   .card-header      { height: 34px; padding: 0 10px; }
   .numero-figurinha { font-size: 18px; }
   .bandeira         { width: 28px; height: 18px; }
+  .bandeira-fallback { width: 28px; height: 18px; font-size: 15px; }
   .card-footer      { height: 52px; padding: 0 10px; gap: 8px; }
   .nome-jogador     { font-size: 13px; }
   .posicao-jogador  { font-size: 10px; }
   .escudo           { width: 24px; height: 24px; }
 }
 </style>
-=======
-}
-
-.escudo-wrapper {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.escudo {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-}
-
-.info-jogador {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
-  min-width: 0;
-}
-
-.nome-jogador {
-  font-family: 'Oswald', 'Arial Narrow', sans-serif;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: #111111;
-  line-height: 1.1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-
-.posicao-jogador {
-  font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
-  font-weight: 400;
-  font-size: 8px;
-  letter-spacing: 0.04em;
-  color: #666666;
-  text-transform: uppercase;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-
-/* ─── Borda brilhante temática (detalhe foil interno) ───── */
-.borda-tema {
-  position: absolute;
-  inset: 2px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  pointer-events: none;
-  z-index: 4;
-  /* Brilho sutil na borda ao hover */
-  box-shadow: inset 0 0 0 1px transparent;
-  transition: box-shadow 0.28s ease;
-}
-
-.holo-ativo .borda-tema {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
-}
-
-/* ─── Responsividade ────────────────────────────────────── */
-
-/* Telas médias: card um pouco maior */
-@media (min-width: 480px) {
-  .figurinha-card {
-    width: 158px;
-  }
-
-  .numero-figurinha { font-size: 16px; }
-  .bandeira         { width: 26px; height: 17px; }
-  .card-footer      { height: 48px; }
-  .nome-jogador     { font-size: 12px; }
-  .posicao-jogador  { font-size: 9px; }
-  .escudo           { width: 22px; height: 22px; }
-}
-
-/* Telas grandes: card padrão */
-@media (min-width: 768px) {
-  .figurinha-card {
-    width: 175px;
-  }
-
-  .card-header      { height: 34px; padding: 0 10px; }
-  .numero-figurinha { font-size: 18px; }
-  .bandeira         { width: 28px; height: 18px; }
-  .card-footer      { height: 52px; padding: 0 10px; gap: 8px; }
-  .nome-jogador     { font-size: 13px; }
-  .posicao-jogador  { font-size: 10px; }
-  .escudo           { width: 24px; height: 24px; }
-}
-</style>
->>>>>>> 082b6e73d5e275b9c21398760edfc86976130b78
